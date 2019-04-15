@@ -1,6 +1,7 @@
 local BasePlugin = require("orange.plugins.base_handler")
 local orange_db = require("orange.store.orange_db")
 local balancer_execute = require("orange.utils.balancer").execute
+local invalidate_target = require("orange.utils.balancer").invalidate_target
 local utils = require("orange.utils.utils")
 local ngx_balancer = require "ngx.balancer"
 local string_find = string.find
@@ -111,6 +112,8 @@ function BalancerHandler:balancer()
         return
     end
 
+    ngx.log(ngx.INFO,"[balancer] call")
+
     local addr = ngx.ctx.balancer_address
     local tries = addr.tries
     local current_try = {}
@@ -126,7 +129,10 @@ function BalancerHandler:balancer()
         -- record faliure data
         local previous_try = tries[addr.try_count - 1]
         previous_try.state, previous_try.code = get_last_failure()
-
+        if previous_try.state == 'failed' and addr.try_count >=3 then
+            ngx.log(ngx.ERR,"invalidate upstream target:",addr.host,",",addr.ip,",",addr.port)
+            invalidate_target(addr.host,addr.ip..":"..addr.port)
+        end
         local ok, err = balancer_execute(addr)
         if not ok then
             ngx.log(ngx.ERR, "failed to retry the dns/balancer resolver for ", 

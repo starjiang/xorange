@@ -5,6 +5,7 @@
 local orange_db = require "orange.store.orange_db"
 local dns_client = require "resty.dns.client"
 local ring_balancer = require "resty.dns.balancer"
+local pl_tablex = require "pl.tablex"
 local table_insert = table.insert
 
 local toip = dns_client.toip
@@ -12,12 +13,14 @@ local log = ngx.log
 
 local ERROR = ngx.ERR
 local DEBUG = ngx.DEBUG
-local EMPTY_T =  {}
+local EMPTY_T = pl_tablex.readonly {}
 
 --===========================================================
 -- Ring-balancer based resolution
 --===========================================================
 local balancers = {}  -- table holding our balancer objects, indexed by upstream name
+local invalid_targets = {} --when target down,need invalidate target from upsteam pool
+local invalid_expired_time = 60 --invalidate expired time
 
 -- caching logic;
 -- we retain 3 entities;
@@ -93,6 +96,36 @@ local function apply_history(rb, history, start)
     return true
 end
 
+local function invalidate_target(host,target)
+    local targets = invalid_targets[host] or {}
+    targets[target] = ngx.now()
+    invalid_targets[host] = targets
+end
+
+local function check_invalid_target(host,target)
+    local targets = invalid_targets[host]
+    if not targets then
+        return
+    end
+    return targets[target] ~= nil
+end
+
+local function restore_target(host)
+
+    local targets = invalid_targets[host]
+    if not targets then
+        return
+    end
+    local now = ngx.now()
+    for target, time in pairs(targets) do
+        if now - time > invalid_expired_time then
+            targets[target] = nil
+        end
+    end
+end
+
+
+
 -- looks up a balancer for the target.
 -- @param target the table with the target details
 -- @return balancer if found, or `false` if not found, or nil+error on error
@@ -115,10 +148,13 @@ local get_balancer = function(target)
         return false    -- TODO, for now, just simply reply false
     end
 
+    restore_target(hostname)
+
     -- perform some raw data updates
     local enabled_targets = {}
     for i, t in ipairs(targets) do
-        if t.enable then
+
+        if t.enable  and not check_invalid_target(hostname,t.target) then
             -- split `target` field into `name` and `port`
             local port
             t.name, port = string.match(t.target, "^(.-):(%d+)$")
@@ -291,6 +327,7 @@ local function execute(target)
 end
 
 return {
+    invalidate_target = invalidate_target,
     execute = execute,
     invalidate_balancer = invalidate_balancer,
 }
