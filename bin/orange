@@ -1,0 +1,3 @@
+#!/usr/bin/env resty
+package.path="/usr/local/orange/?.lua;;" .. package.path
+require("bin.main")(arg)

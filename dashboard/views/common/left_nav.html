@@ -1,0 +1,183 @@
+<!--左侧导航开始-->
+<nav id="nav-section" class="navbar-default navbar-static-side" role="navigation">
+    <div class="nav-close" style="display: none"><i class="glyphicon glyphicon-transfer"></i>
+    </div>
+    <div class="sidebar-collapse">
+        <ul class="nav" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element">
+                    <p>
+                        <span
+                            style="display: inline-block;height: 50px;width:50px;line-height: 50px;vertical-align: middle;margin-left: -6px;padding-top: 10px;">{(common/logo.html)}</span>
+                        <span
+                            style="display: inline-block;height: 50px;line-height: 50px;vertical-align: middle;color: #fff;padding-top:6px;font-size: 18px;padding-left: 10px;"><strong
+                                class="font-bold">Orange</strong></span>
+                    </p>
+                </div>
+                <div class="logo-element">
+                    <span
+                        style="display: inline-block;height: 50px;width:50px;line-height: 50px;vertical-align: middle;margin-left: -6px;padding-top: 10px;">{(common/logo.html)}</span>
+                </div>
+            </li>
+            <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+                <span class="ng-scope">概览</span>
+            </li>
+            <li id="nav-index">
+                <a class="J_menuItem" href="/">
+                    <i class="fa fa-home"></i>
+                    <span class="nav-label">概况</span>
+                </a>
+            </li>
+            <li id="nav-status">
+                <a href="/status">
+                    <i class="fa fa fa-bar-chart-o"></i>
+                    <span class="nav-label">全局统计</span>
+                </a>
+            </li>
+            <li class="line dk"></li>
+
+            <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+                <span class="ng-scope">插件设置</span>
+            </li>
+            <li id="nav-headers">
+                <a href="/headers">
+                    <i class="fa fa-pencil-square-o"></i>
+                    <span class="nav-label">Headers 修改</span>
+                </a>
+            </li>
+            <li id="nav-monitor">
+                <a href="/monitor">
+                    <i class="fa fa-desktop"></i>
+                    <span class="nav-label">自定义监控</span>
+                </a>
+            </li>
+            <li id="nav-persist">
+                <a href="/persist">
+                    <i class="fa fa-th"></i>
+                    <span class="nav-label">API调用统计</span>
+                </a>
+            </li>
+            <li id="nav-redirect">
+                <a href="/redirect">
+                    <i class="fa fa-random"></i>
+                    <span class="nav-label">URL重定向</span>
+                </a>
+            </li>
+            <li id="nav-rewrite">
+                <a href="/rewrite">
+                    <i class="fa fa-pencil-square-o"></i>
+                    <span class="nav-label">URI重写</span>
+                </a>
+            </li>
+            <li id="nav-dynamic-upstream">
+                <a href="/dynamic_upstream">
+                    <i class="fa fa-pencil-square-o"></i>
+                    <span class="nav-label"> 代理分发 </span>
+                </a>
+            </li>
+            <li id="nav-balancer">
+                <a href="/balancer">
+                    <i class="fa fa-balance-scale"></i>
+                    <span class="nav-label">upstream 管理</span>
+                </a>
+            </li>
+            <li id="nav-rate-limiting">
+                <a href="/rate_limiting">
+                    <i class="fa fa-filter"></i>
+                    <span class="nav-label">频率限制</span>
+                </a>
+            </li>
+            <li id="nav-property-rate-limiting">
+                <a href="/property_rate_limiting">
+                    <i class="fa fa-filter"></i>
+                    <span class="nav-label">特征提取频率限制</span>
+                </a>
+            </li>
+            <li id="nav-waf">
+                <a href="/waf">
+                    <i class="fa fa-warning"></i>
+                    <span class="nav-label">WAF防火墙</span>
+                </a>
+            </li>
+            <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+                <span class="nav-label">认证鉴权</span>
+            </li>
+            <li id="nav-basic-auth">
+                <a href="/basic_auth">
+                    <i class="fa fa-ban"></i>
+                    <span class="nav-label">Basic Auth</span>
+                </a>
+            </li>
+            <li id="nav-key-auth">
+                <a href="/key_auth">
+                    <i class="fa fa-key"></i>
+                    <span class="nav-label">Key Auth</span>
+                </a>
+            </li>
+            <li id="nav-jwt-auth">
+                <a href="/jwt_auth">
+                    <i class="fa fa-map-signs"></i>
+                    <span class="nav-label">Jwt Auth</span>
+                </a>
+            </li>
+            <li id="nav-hmac-auth">
+                <a href="/hmac_auth">
+                    <i class="fa fa-lock"></i>
+                    <span class="nav-label">Hmac Auth</span>
+                </a>
+            </li>
+            <li id="nav-signature-auth">
+                <a href="/signature_auth">
+                    <i class="fa fa-minus-circle"></i>
+                    <span class="nav-label">Signature Auth</span>
+                </a>
+            </li>
+
+            {%
+            if locals and locals.login and locals.login == true then
+            %}
+            <li class="line dk"></li>
+            <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+                <span class="ng-scope">系统管理</span>
+            </li>
+            {%
+            if locals.is_admin then
+            %}
+            <li id="nav-user-manage">
+                <a href="/admin/user/manage">
+                    <i class="fa fa-user"></i>
+                    <span class="nav-label">用户管理</span>
+                </a>
+            </li>
+
+            <li id="nav-node">
+                <a href="/admin/node/manage">
+                    <i class="fa fa fa-server"></i>
+                    <span class="nav-label">集群节点</span>
+                </a>
+            </li>
+
+            {% end %}
+            <li>
+                <a href="/auth/logout">
+                    <i class="fa fa-sign-out"></i>
+                    <span class="nav-label">退出</span>
+                </a>
+            </li>
+            {% end %}
+
+
+            <li class="line dk"></li>
+            <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+                <span class="ng-scope">系统</span>
+            </li>
+            <li id="nav-help">
+                <a href="/help">
+                    <i class="fa fa-life-ring"></i>
+                    <span class="nav-label">帮助</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!--左侧导航结束-->

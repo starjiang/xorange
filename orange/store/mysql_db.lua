@@ -1,0 +1,112 @@
+local tinsert = table.insert
+local type = type
+local ipairs = ipairs
+local setmetatable = setmetatable
+local ngx_quote_sql_str = ngx.quote_sql_str
+local mysql = require("resty.mysql")
+local utils = require("orange.utils.utils")
+local Object = require("orange.lib.classic")
+
+
+local DB = Object:extend()
+
+function DB:new(conf)
+    self.conf = conf
+end
+
+function DB:exec(sql)
+    local conf = self.conf
+    local db, err = mysql:new()
+    if not db then
+        return nil,err
+    end
+    db:set_timeout(conf.timeout) -- 1 sec
+
+    local ok, err, errno, sqlstate = db:connect(conf.connect_config)
+    if not ok then
+        return nil,err
+    end
+
+    local res, err, errno, sqlstate = db:query(sql)
+
+    db:set_keepalive(conf.pool_config.max_idle_timeout, conf.pool_config.pool_size)
+
+    return res, err
+end
+
+function DB:query(sql, params)
+    sql = self:parse_sql(sql, params)
+    return self:exec(sql)
+end
+
+function DB:select(sql, params)
+    return self:query(sql, params)
+end
+
+function DB:insert(sql, params)
+    local res, err = self:query(sql, params)
+    if res and not err then
+        return  res.insert_id, err
+    else
+        return res, err
+    end
+end
+
+function DB:update(sql, params)
+    return self:query(sql, params)
+end
+
+function DB:delete(sql, params)
+    local res, err = self:query(sql, params)
+    if res and not err then
+        return res.affected_rows, err
+    else
+        return res, err
+    end
+end
+
+local function split(str, delimiter)
+    if str==nil or str=='' or delimiter==nil then
+        return nil
+    end
+
+    local result = {}
+    for match in (str..delimiter):gmatch("(.-)"..delimiter) do
+        tinsert(result, match)
+    end
+    return result
+end
+
+local function compose(t, params)
+    if t==nil or params==nil or type(t)~="table" or type(params)~="table" or #t~=#params+1 or #t==0 then
+        return nil
+    else
+        local result = t[1]
+        for i=1, #params do
+            result = result  .. params[i].. t[i+1]
+        end
+        return result
+    end
+end
+
+function DB:parse_sql(sql, params)
+    if not params or not utils.table_is_array(params) or #params == 0 then
+        return sql
+    end
+
+    local new_params = {}
+    for i, v in ipairs(params) do
+        if v and type(v) == "string" then
+            v = ngx_quote_sql_str(v)
+        end
+
+        tinsert(new_params, v)
+    end
+
+    local t = split(sql,"?")
+    local sql = compose(t, new_params)
+
+    return sql
+end
+
+return DB
