@@ -4,8 +4,8 @@
 * 可根据规范编写自定义插件扩展Orange功能
 
 * orange 源项目地址 https://github.com/sumory/orange
-## 在源项目基础上去掉一些插件，修复一些问题
-* 去除divide,kvstore 插件
+## 在源项目v0.7版本基础上，进行开发改进，去掉一些插件，修复一些问题
+* 去除divide,kvstore 等应用场景使用较少或功能重复插件
 * 强化persist 插件，添加了api 统计，曲线图
 * 除了socket 依赖需要luarocks 安装外，其余依赖以源码方式集成到项目中
 * dashboard 去除了相应的模块
@@ -20,11 +20,15 @@
    * tar -xzvf luarocks-3.0.4.tar.gz
    * ./configure --prefix=/usr/local/openresty/luajit     --with-lua=/usr/local/openresty/luajit/     --lua-suffix=jit     --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1
 * 导入/usr/local/orange/install/orange.sql 到mysql 数据库
-* 默认用户名/密码 admin/orange_admin
+* dashboard默认用户名/密码 admin/orange_admin
 ## 启动
 * /usr/local/orange/bin/orange start/restart/reload
 ## 管理地址
 * http://安装的机器ip:9999
 ## api 调用地址
 * http://安装的机器ip:7777
+## 后续开发迭代计划
+* 支持ssl 证书管理
+* 增强waf 功能,支持ip 列表，ip网段
+* 增强性能（目前来看规则匹配，比较耗cpu）
 

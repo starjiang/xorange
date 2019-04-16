@@ -17,7 +17,7 @@ local function ngx_set_uri(uri,rule_handle)
     ngx.var.upstream_url = rule_handle.upstream_name
     if uri then
         local query_string = ngx.encode_args(ngx.req.get_uri_args())
-        if query_string then
+        if query_string ~= '' then
             ngx.var.upstream_request_uri = uri  .. '?' .. query_string
         else
             ngx.var.upstream_request_uri = uri

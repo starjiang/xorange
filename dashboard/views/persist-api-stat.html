@@ -435,7 +435,7 @@ $(document).on("click", ".api_stat_graph", function() {
   $('.time_range2').eq(0).addClass('active');
 
   initRequestStatusfunction();
-  getApiStatsDataAndRender(60,api,domain);
+  getApiStatsDataAndRender(60,api,domain,"");
 
   var d = dialog({
 	title: 'API【'+api+'】曲线',
