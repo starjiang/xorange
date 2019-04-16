@@ -73,8 +73,8 @@ function _M.int64(self)
     return hi * 4294967296 + 16777216 * e + lo
     --]]
 
-    return 4294967296LL * bor(lshift(a, 56), lshift(b, 48), lshift(c, 40), lshift(d, 32))
-            + 16777216LL * e
+    return 4294967296 * bor(lshift(a, 56), lshift(b, 48), lshift(c, 40), lshift(d, 32))
+            + 16777216 * e
             + bor(lshift(f, 16), lshift(g, 8), h)
 end
 

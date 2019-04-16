@@ -200,12 +200,20 @@
                 </div>
 
                 <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <div class="checkbox">
-                            <label class="checkbox">
-                                <input type="checkbox" id="selector-enable"> 启用
-                            </label>
-                        </div>
+                    <div class="col-sm-offset-2">
+        
+                        <label class="checkbox_inline">
+                            <input type="checkbox" id="selector-enable"> 启用
+                        </label>
+                        <label class="radio_inline">
+                            <input type="radio" name="selector-method" id="selector-method1" value="round_robin" checked> 轮询 
+                        </label>
+                        <label class="radio_inline">
+                            <input type="radio" name="selector-method" id="selector-method2" value="random_weight"> 随机权重 
+                        </label>
+                        <label class="radio_inline">
+                            <input type="radio" name="selector-method" id="selector-method3" value="ip_hash"> ip_hash
+                        </label>
                     </div>
                 </div>
             </form>
@@ -256,14 +264,23 @@
                 </div>
 
                 <div class="form-group">
-                    <div class="col-sm-offset-1 col-sm-11">
-                        <div class="checkbox">
-                            <label class="checkbox">
-                                <input {@if s.enable==true} checked {@/if} type="checkbox" id="selector-enable"> 启用
-                            </label>
-                        </div>
+                    <div class="col-sm-offset-2">
+        
+                        <label class="checkbox_inline">
+                            <input  {@if s.enable==true} checked {@/if} type="checkbox" id="selector-enable"> 启用
+                        </label>
+                        <label class="radio_inline">
+                            <input  {@if s.method=='round_robin'} checked {@/if}  type="radio" name="selector-method" id="selector-method1" value="round_robin"> 轮询 
+                        </label>
+                        <label class="radio_inline">
+                            <input  {@if s.method=='random_weight'} checked {@/if} type="radio" name="selector-method" id="selector-method2" value="random_weight"> 随机权重 
+                        </label>
+                        <label class="radio_inline">
+                            <input {@if s.method=='ip_hash'} checked {@/if}  type="radio" name="selector-method" id="selector-method3" value="ip_hash"> ip_hash
+                        </label>
                     </div>
                 </div>
+
             </form>
 
         </div>

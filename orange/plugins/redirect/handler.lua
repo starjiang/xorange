@@ -85,6 +85,9 @@ function RedirectHandler:redirect()
         return
     end
     
+    ngx.log(ngx.INFO, "[Redirect] check selectors")
+
+
     local ngx_var = ngx.var
     local ngx_var_uri = ngx_var.uri
     local ngx_var_host = ngx_var.http_host
@@ -92,7 +95,6 @@ function RedirectHandler:redirect()
     local ngx_var_args = ngx_var.args
 
     for i, sid in ipairs(ordered_selectors) do
-        ngx.log(ngx.INFO, "==[Redirect][PASS THROUGH SELECTOR:", sid, "]")
         local selector = selectors[sid]
         if selector and selector.enable == true then
             local selector_pass 

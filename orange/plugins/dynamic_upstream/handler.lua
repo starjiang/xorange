@@ -16,10 +16,14 @@ local function ngx_set_uri(uri,rule_handle)
     ngx.var.upstream_host = rule_handle.host or ngx.var.host
     ngx.var.upstream_url = rule_handle.upstream_name
     if uri then
-        ngx.var.upstream_request_uri = uri  .. '?' .. ngx.encode_args(ngx.req.get_uri_args())
-        --ngx.var.upstream_request_uri = uri
+        local query_string = ngx.encode_args(ngx.req.get_uri_args())
+        if query_string then
+            ngx.var.upstream_request_uri = uri  .. '?' .. query_string
+        else
+            ngx.var.upstream_request_uri = uri
+        end
     end
-    ngx.log(ngx.INFO, '[DynamicUpstream][upstream request][http://', ngx.var.upstream_url, ngx.var.upstream_request_uri, ']')
+    ngx.log(ngx.INFO, '[DynamicUpstream] upstream to [http://', ngx.var.upstream_url, ngx.var.upstream_request_uri, ']')
 end
 
 local function filter_rules(sid, plugin, ngx_var_uri)
@@ -31,10 +35,8 @@ local function filter_rules(sid, plugin, ngx_var_uri)
 
     for i, rule in ipairs(rules) do
         if rule.enable == true then
-            ngx.log(ngx.INFO, "==[DynamicUpstream][rule name:", rule.name, "][rule id:", rule.id, ']')
             -- judge阶段
             local pass = judge_util.judge_rule(rule, "dynamic_upstream")
-
             -- handle阶段
             if pass then
                 -- extract阶段
@@ -47,7 +49,7 @@ local function filter_rules(sid, plugin, ngx_var_uri)
                     local to_rewrite = handle_util.build_uri(rule.extractor.type, handle.uri_tmpl, variables)
                     if to_rewrite then
                         if handle.log == true then
-                            ngx.log(ngx.INFO, "[DynamicUpstream] ", ngx_var_uri, " to:", to_rewrite)
+                            ngx.log(ngx.INFO, "[DynamicUpstream] rewrite [", ngx_var_uri, "] to [", to_rewrite,"]")
                         end
 
                         local from, to, err = ngx_re_find(to_rewrite, "[?]{1}", "jo")
@@ -99,11 +101,11 @@ function DynamicUpstreamHandler:access(conf)
     if not enable or enable ~= true or not meta or not ordered_selectors or not selectors then
         return
     end
+    ngx.log(ngx.INFO, "[DynamicUpstream] check selectors")
 
     local ngx_var_uri = ngx.var.uri
     for i, sid in ipairs(ordered_selectors) do
         local selector = selectors[sid]
-        ngx.log(ngx.INFO, "==[DynamicUpstream][START SELECTOR:", sid, ",NAME:",selector.name,']')
         if selector and selector.enable == true then
             local selector_pass
             if selector.type == 0 then -- 全流量选择器

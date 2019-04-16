@@ -25,7 +25,7 @@ function PersistHandler:log()
         return
     end
 
-    ngx.log(ngx.INFO, "==[Persist][PASS THROUGH SELECTOR")
+    ngx.log(ngx.INFO, "[Persist] check selectors")
 
     persist.log(self)
 end

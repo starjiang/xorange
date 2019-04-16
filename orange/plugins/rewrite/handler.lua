@@ -80,9 +80,10 @@ function RewriteHandler:rewrite(conf)
         return
     end
 
+    ngx.log(ngx.INFO, "[Rewrite] check selectors")
+
     local ngx_var_uri = ngx.var.uri
     for i, sid in ipairs(ordered_selectors) do
-        ngx.log(ngx.INFO, "==[Rewrite][PASS THROUGH SELECTOR:", sid, "]")
         local selector = selectors[sid]
         if selector and selector.enable == true then
             local selector_pass 

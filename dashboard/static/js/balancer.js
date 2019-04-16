@@ -609,6 +609,9 @@
                 result.data.slots = Math.abs(parseInt(slots));
             }
 
+            var method = $("input:radio[name='selector-method']:checked").val();
+            result.data.method = method;
+
             var enable = $('#selector-enable').is(':checked');
             result.data.enable = enable;
 

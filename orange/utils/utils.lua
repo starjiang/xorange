@@ -3,6 +3,7 @@
 local require = require
 local uuid = require("orange.lib.jit-uuid")
 local date = require("orange.lib.date")
+local resolver = require "resty.dns.resolver"
 local type = type
 local pcall = pcall
 local pairs = pairs
@@ -212,6 +213,46 @@ function _M.hostname_type(name)
     return "name"
 end
 
+local dns_cache = {}
+local dns_cache_expired = 5 * 60
+
+function _M.toip(hostname,cache)
+
+    if cache then
+        local ip_info = dns_cache[hostname]
+        if ip_info and ip_info[2] + dns_cache_expired > ngx.now() then
+            return ip_info[1],nil
+        end
+    end
+
+    local r, err = resolver:new{
+        nameservers = {"8.8.8.8", {"8.8.4.4", 53} },
+        retrans = 5,  -- 5 retransmissions on receive timeout
+        timeout = 2000,  -- 2 sec
+    }
+
+    if not r then
+        return nil,"failed to instantiate the resolver: "..err
+    end
+
+    local answers, err, tries = r:query(hostname, nil, {})
+    if not answers then
+        return nil,"failed to query the DNS server: "..err
+    end
+
+    if answers.errcode then
+        return nil,"server returned error code: "..tostr(answers.errcode)..": "..answers.errstr
+    end
+
+    for i,v in ipairs(answers) do
+        if v.address then
+            dns_cache[hostname] = {v.address,ngx.now()}
+            return v.address,nil
+        end
+    end
+    return nil,"have no dns record for this host"
+end
+
 ---Try to generate a random seed using OpenSSL.
 -- ffi based, would be more effenticy
 -- This function is mainly ispired by https://github.com/bungle/lua-resty-random
@@ -231,5 +272,6 @@ do
         return a * 0x1000000 + b * 0x10000 + c * 0x100 + d
     end
 end
+
 
 return _M

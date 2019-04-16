@@ -8,7 +8,6 @@ local ck = require("orange.lib.cookie")
 local utils = require("orange.utils.utils")
 local config_loader = require("orange.utils.config_loader")
 local dao = require("orange.store.dao")
-local dns_client = require("resty.dns.client")
 
 local HEADERS = {
     PROXY_LATENCY = "X-Orange-Proxy-Latency",
@@ -80,9 +79,6 @@ function Orange.init(options)
         store = store,
         config = config
     }
-
-    -- init dns_client
-    assert(dns_client.init())
 
     return config, store
 end

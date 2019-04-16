@@ -55,9 +55,10 @@ function HeaderHandler:rewrite(conf)
         return
     end
 
+    ngx.log(ngx.INFO, "[Headers] check selectors")
+
     for i, sid in ipairs(ordered_selectors) do
         local selector = selectors[sid]
-        ngx.log(ngx.INFO, "==[Headers][START SELECTOR:", sid, "][NAME:",selector.name,']')
         if selector and selector.enable == true then
             local selector_pass
             if selector.type == 0 then -- 全流量选择器

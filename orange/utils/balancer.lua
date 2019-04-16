@@ -3,34 +3,13 @@
 -- modified by zhjwpku@github
 
 local orange_db = require "orange.store.orange_db"
-local dns_client = require "resty.dns.client"
-local ring_balancer = require "resty.dns.balancer"
-local pl_tablex = require "pl.tablex"
+local utils = require "orange.utils.utils"
+local cjson = require "cjson"
 local table_insert = table.insert
 
-local toip = dns_client.toip
-local log = ngx.log
-
-local ERROR = ngx.ERR
-local DEBUG = ngx.DEBUG
-local EMPTY_T = pl_tablex.readonly {}
-
---===========================================================
--- Ring-balancer based resolution
---===========================================================
 local balancers = {}  -- table holding our balancer objects, indexed by upstream name
 local invalid_targets = {} --when target down,need invalidate target from upsteam pool
 local invalid_expired_time = 60 --invalidate expired time
-
--- caching logic;
--- we retain 3 entities;
--- 1) list of upstreams: to be invalidated on any upstream change
--- 2) individual upstreams: to be invalidated on individual basis
--- 3) target history for an upstream, invalidated when:
---    a) along with the upstream it belongs to
---    b) upon any target change for the upstream (can only add entries)
--- Distinction between 1 and 2 makes it possible to invalidate indvidual
--- upstreams, instead of all at once forcing to rebuild all balancers
 
 -- delect a balancer object from our internal cache
 local function invalidate_balancer(upstream_name)
@@ -70,32 +49,6 @@ local function get_upstream(upstream_name)
     return false -- no upstream by this name
 end
 
--- applies the history of lb transactions from index `start` forward
--- @param rb ring-balancer object
--- @param history list of targets/transactions to be applied
--- @param start the index where to start in `history` parameter
--- @return true
-local function apply_history(rb, history, start)
-    for i = start, #history do
-        local target = history[i]
-
-        if target.enable and target.weight > 0 then
-            assert(rb:addHost(target.name, target.port, target.weight))
-        else
-            assert(rb:removeHost(target.name, target.port))
-        end
-
-        rb.__targets_history[i] = {
-            name = target.name,
-            port = target.port,
-            weight = target.weight,
-            order = target.order,
-        }
-    end
-
-    return true
-end
-
 local function invalidate_target(host,target)
     local targets = invalid_targets[host] or {}
     targets[target] = ngx.now()
@@ -125,6 +78,74 @@ local function restore_target(host)
 end
 
 
+local Balancer = {}
+
+
+function Balancer:new(targets,method)
+    local instance = {}
+    instance._targets = targets
+    instance._pos = 1
+    instance._method = method
+    setmetatable(instance, { __index = self })
+    return instance
+end
+
+
+function Balancer:get_targets()
+    return self._targets
+end
+
+function Balancer:get_method()
+    return self._method
+end
+
+function Balancer:_get_index()
+
+    if self._method == 'random_weight' then 
+        local total = 0
+        for i,v in ipairs(self._targets) do
+            total = total+v.weight
+        end
+
+        local random = math.random(1,total)
+        for i = 1,#self._targets do
+          local weight = self._targets[i].weight or 0
+          random = random - weight
+          if random <= 0 then
+            return i
+          end
+        end
+        return 1
+    elseif self._method == 'ip_hash' then
+        local seq = ngx.crc32_short(ngx.var.remote_addr)
+        local index = math.abs(seq) % #self._targets
+        return index+1
+    else --default round_robin
+        if self._pos > #self._targets then
+            self._pos = 1
+        end
+
+        local index = self._pos
+        self._pos = self._pos+1
+        return index
+    end
+end
+
+function Balancer:get_peer()
+    local target = self._targets[self:_get_index()]
+    local ip = target.name
+    local port = target.port
+    local err
+
+    if utils.hostname_type(target.name) == "name" then 
+        ip,err = utils.toip(target.name,true)
+        if not ip then
+            return nil,nil,nil,err
+        end
+    end
+
+    return ip,port,target.name,nil
+end
 
 -- looks up a balancer for the target.
 -- @param target the table with the target details
@@ -137,7 +158,7 @@ local get_balancer = function(target)
     local upstream = get_upstream(hostname)
 
     if upstream == false then
-        return false    -- no upstream by this name
+        return nil,"no upstream for this name:"..hostname    -- no upstream by this name
     end
 
     -- we've got the upstream, now fetch its targets, from orange_db
@@ -145,7 +166,7 @@ local get_balancer = function(target)
     local targets = orange_db.get_json("balancer.selector." .. upstream.id .. ".rules")
 
     if not targets then
-        return false    -- TODO, for now, just simply reply false
+        return nil,"no targets for this name:"..hostname    -- TODO, for now, just simply reply false
     end
 
     restore_target(hostname)
@@ -167,7 +188,7 @@ local get_balancer = function(target)
     end
 
     if #enabled_targets == 0 then
-        return false    -- no enabled host
+        return nil,"no enabled target for this name:"..hostname    -- no enabled host
     end
 
     table.sort(enabled_targets, function(a, b)
@@ -176,154 +197,57 @@ local get_balancer = function(target)
 
     local balancer = balancers[hostname]
     if not balancer then
-        -- no balancer yet (or invalidated) so create a new one
-        balancer, err = ring_balancer.new({
-            wheelSize = upstream.slots,
-            order = upstream.orderlist,
-            dns = dns_client,
-        })
-
-        if not balancer then
-            return balancer, err
-        end
-
-        -- NOTE: we're inserting a foreign entity in the balancer, to keep track of
-        -- target-history changes
-        balancer.__targets_history = {}
+        balancer = Balancer:new(enabled_targets,target.method)
         balancers[upstream.name] = balancer
     end
 
-    -- check history state
-    -- NOTE: in the code below variables are similarly named, but the
-    -- ones with `__`-prefixed, are the ones on the `balancer` object, and the
-    -- regular ones are the ones we just fetched an are comparing against.
-    local __size = #balancer.__targets_history
+    local __size = #balancer:get_targets()
     local size = #enabled_targets
 
-    if __size ~= size or
-        (balancer.__targets_history[__size] or EMPTY_T).order ~=
-        (enabled_targets[size] or EMPTY_T).order then
-        -- last entries in history don't match, so we must do some updates.
-
-        -- compare balancer history with db-loaded history
-        local last_equal_index = 0  -- last index where history is the same
-        for i, entry in ipairs(balancer.__targets_history) do
-            if entry.order ~= (enabled_targets[i] or EMPTY_T).order then
-                last_equal_index = i - 1
-                break
-            end
-        end
-
-        if last_equal_index == __size then
-            -- history is the same, so we only need to add new entries
-            apply_history(balancer, enabled_targets, last_equal_index + 1)
-        else
-            -- history not the same.
-            -- TODO: ideally we would undo the last ones until we're equal again
-            -- and can replay changes, but not supported by ring-balancer yet.
-            -- for now, create a new balancer from scratch
-            balancer, err = ring_balancer.new({
-                wheelSize = upstream.slots,
-                order = upstream.orderlist,
-                dns = dns_client,
-            })
-
-            if not balancer then
-                return balancer, err
-            end
-
-            balancer.__targets_history = {}
-            balancers[upstream.name] = balancer
-            apply_history(balancer, enabled_targets, 1)
-        end
+    if __size ~= size or balancer:get_targets()[__size].order ~= enabled_targets[size].order or balancer:get_method() ~= target.method then
+        balancer = Balancer:new(enabled_targets,target.method)
+        balancers[upstream.name] = balancer
     end
 
-    return balancer
+    return balancer,nil
 end
 
---===========================================================
--- Main entry point when resolving
---===========================================================
-
--- Resolves the target structure in-place (field `ip`, port, and `hostname`).
---
--- If the hostname matches an 'upstream' pool, then it must be balanced in that
--- pool, in this case any port number provided will be ignored, as the pool provides it.
---
--- @param target the data structure as defined in `core.access.before` where it is created
--- return true one success, nil+error otherwise
 local function execute(target)
     if target.type ~= "name" then
-        -- it's an ip address (v4 or v6), so nothing we can do...
         target.ip = target.host
         target.port = target.port or 80
         target.hostname = target.host
         return true
     end
 
-    -- when tries == 0 it runs before the `balancer` context (in the `access` context),
-    -- when tries >= 2 then it performs a retry in the `balancer` context
-    local dns_cache_only = target.try_count ~= 0
-    local balancer
-
-    if dns_cache_only then
-        -- retry, so balancer is already set if there was one
-        balancer = target.balancer
-
-    else
-        local err
-        -- first try, so try and find a matching balancer/upstream object
-        balancer, err = get_balancer(target)
-
-        if err then -- check on err, `nil` without `err` means we do dns resolution
-            return nil, err
-        end
-
-        -- store for retries
-        target.balancer = balancer
-    end
+    local balancer,err = get_balancer(target)
 
     if balancer then
-        -- have to invoke the ring-balancer
-        local hashValue = nil -- TODO: implement, nil does simple round-robin
-
-        local ip, port, hostname = balancer:getPeer(hasValue, nil, dns_cache_only)
-
-        ngx.log(ngx.INFO, "[ip]:", ip, " [port]: ", port)
+        target.balancer = balancer
+        local ip, port, hostname,err = balancer:get_peer()
+        ngx.log(ngx.INFO, "[Balancer] ",target.host," to ip:", ip, ",port:", port,",host:",hostname)
         if not ip then
-            if port == "No peers are available" then
-                -- in this case a "503 service unavailable", others will be a 500.
-                log(ERROR, "name resolution failed for '", tostring(target.host),
-                             "': ", port)
-                return ngx.exit(503)
-            end
-
-            return nil, port
+            ngx.log(ngx.ERR, "can not get peer for '", tostring(target.host),"': ", port,",err:",err)
+            return false
         end
 
         target.ip = ip
         target.port = port
         target.hostname = hostname
+
+        return true
+
+    else
+        local ip, err = utils.toip(target.host,true)
+        if not ip then
+            ngx.log(ngx.ERR, "name resolution failed for '", tostring(target.host), "': ", target.port,",err:",err)
+            return false
+        end
+    
+        target.ip = ip
+        target.hostname = target.host
         return true
     end
-
-    -- have to do a regular DNS lookup
-    local ip, port = toip(target.host, target.port, dns_cache_only)
-    if not ip then
-        if port == "dns server error; 3 name error" then
-            -- in this case a "503 service unavailable", others will be a 500.
-            log(ERROR, "name resolution failed for '", tostring(target.host),
-                         "': ", port)
-            return ngx.exit(503)
-        end
-        return nil, port
-    end
-
-    target.ip = ip
-    target.port = port
-    target.hostname = target.host
-
-    return true
 end
 
 return {

@@ -34,6 +34,9 @@ function BalancerHandler:access()
     if not enable or enable ~= true or not meta or not selectors then
         return
     end
+
+    ngx.log(ngx.INFO,"[Balancer] check selectors")
+
     local upstream_url = ngx.var.upstream_url
     -- set ngx.var.target
     local target = upstream_url
@@ -45,13 +48,9 @@ function BalancerHandler:access()
         schema = "http"
         hostname = upstream_url
     end
-
-    ngx.log(ngx.INFO, "[balancer][scheme] ", scheme, "; [upstream host] ", hostname)
-
     -- check whether the hostname stored in db
     if utils.hostname_type(hostname) == "name" then
         local upstreams = selectors
-
         local name, port
         if string_find(hostname, ":") then
             name, port = hostname:match("^(.-)%:*(%d*)$")
@@ -75,12 +74,11 @@ function BalancerHandler:access()
                         connection_timeout = upstream.connection_timeout or 60000,
                         send_timeout       = upstream.send_timeout or 60000,
                         read_timeout       = upstream.read_timeout or 60000,
-
+                        method = upstream.method or 'round_robin',
                         -- ip              = nil,     -- final target IP address
                         -- balancer        = nil,     -- the balancer object, in case of balancer
                         -- hostname        = nil,     -- the hostname belonging to the final target IP
                     }
-
                     break
                 end
             end -- end for loop
@@ -90,13 +88,12 @@ function BalancerHandler:access()
 
     -- run balancer_execute once before the `balancer` context
     if balancer_addr then
-        local ok, err = balancer_execute(balancer_addr)
+        local ok = balancer_execute(balancer_addr)
         if not ok then
             return ngx.exit(503)
         end
         ngx.ctx.balancer_address = balancer_addr
         ngx.var.upstream_url = target
-        ngx.log(ngx.INFO,ngx.var.upstream_scheme,ngx.var.upstream_url,ngx.var.upstream_request_uri)
     end
 end
 
@@ -112,8 +109,6 @@ function BalancerHandler:balancer()
         return
     end
 
-    ngx.log(ngx.INFO,"[balancer] call")
-
     local addr = ngx.ctx.balancer_address
     local tries = addr.tries
     local current_try = {}
@@ -122,22 +117,16 @@ function BalancerHandler:balancer()
     current_try.balancer_start = now()
 
     if addr.try_count > 1 then
-        -- only call balancer on retry, first one is done in `access` which runs
-        -- in the ACCESS context and hence has less limitations than this BALANCER
-        -- context where the retries are executed
-
-        -- record faliure data
+ 
         local previous_try = tries[addr.try_count - 1]
         previous_try.state, previous_try.code = get_last_failure()
-        if previous_try.state == 'failed' and addr.try_count >=3 then
+        if previous_try.state == 'failed' and addr.try_count >1 then
             ngx.log(ngx.ERR,"invalidate upstream target:",addr.host,",",addr.ip,",",addr.port)
             invalidate_target(addr.host,addr.ip..":"..addr.port)
         end
-        local ok, err = balancer_execute(addr)
+        local ok = balancer_execute(addr)
         if not ok then
-            ngx.log(ngx.ERR, "failed to retry the dns/balancer resolver for ", 
-                    addr.host, "' with: ", tostring(err))
-            return ngx.exit(500)
+            return ngx.exit(503)
         end
 
     else
