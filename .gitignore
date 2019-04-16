@@ -1,7 +1,7 @@
- client_body_temp
+logs 
+client_body_temp
  fastcgi_temp
  proxy_temp
  tmp
  uwsgi_temp
- logs
  scgi_temp
