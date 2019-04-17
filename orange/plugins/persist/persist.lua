@@ -166,10 +166,9 @@ local function write_data(config)
     end
 
     if len > 0 then
-        ngx.log(ngx.INFO,sql)
         result = config.store:insert(sql)
         if not result then
-            ngx.log(ngx.ERR, "query has error")
+            ngx.log(ngx.ERR, "insert data into mysql has error")
         end
     end
     api_status:flush_all()
