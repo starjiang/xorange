@@ -1,5 +1,6 @@
 local socket = require("socket")
 local orange_db = require("orange.store.orange_db")
+local stringy = require("orange.utils.stringy")
 local status = ngx.shared.status
 local api_status = ngx.shared.api_status
 local cjson = require("cjson")
@@ -46,19 +47,6 @@ local function setinterval(callback, interval)
         ngx.log(ngx.ERR, "failed to create the timer: ", err)
         return
     end
-end
-
-function split(input, delimiter)
-    input = tostring(input)
-    delimiter = tostring(delimiter)
-    if (delimiter=='') then return false end
-    local pos,arr = 0, {}
-    for st,sp in function() return string.find(input, delimiter, pos, true) end do
-        table.insert(arr, string.sub(input, pos, st - 1))
-        pos = sp + 1
-    end
-    table.insert(arr, string.sub(input, pos))
-    return arr
 end
 
 function concat(input)
@@ -116,7 +104,7 @@ local function write_data(config)
         status:set(KEY_TRAFFIC_WRITE..key, 0)
         status:set(KEY_TOTAL_REQUEST_TIME..key, 0)
 
-        local meta = split(key,":")
+        local meta = stringy.split(key,":")
 
         local domain = meta[2]
         local api_path = meta[3]

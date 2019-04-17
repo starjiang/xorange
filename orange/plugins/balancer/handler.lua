@@ -40,37 +40,19 @@ function BalancerHandler:access()
 
     ngx.log(ngx.INFO,"[Balancer] check selectors")
 
-    local upstream_url = ngx.var.upstream_url
-    -- set ngx.var.target
-    local target = upstream_url
-    local schema, hostname
     local balancer_addr
-    if string_find(upstream_url, "://") then
-        schema, hostname = upstream_url:match("^(.+)://(.+)$")
-    else
-        schema = "http"
-        hostname = upstream_url
-    end
+    local host = ngx.var.upstream_url
     -- check whether the hostname stored in db
-    if utils.hostname_type(hostname) == "name" then
+    if utils.hostname_type(host) == "name" and not string_find(host, ":") then
         local upstreams = selectors
-        local name, port
-        if string_find(hostname, ":") then
-            name, port = hostname:match("^(.-)%:*(%d*)$")
-        else
-            name, port = hostname, 80
-        end
         if upstreams and type(upstreams) == "table" then
             for _, upstream in pairs(upstreams) do
-                if name == upstream.name then
-                    -- set target to orange_upstream
-                    target = "orange_upstream"
-
+                if host == upstream.name then
                     -- set balancer_addr
                     balancer_addr = {
                         type               = "name",
-                        host               = name,
-                        port               = port,
+                        host               = host,
+                        port               = 80,
                         try_count          = 0,
                         tries              = {},
                         retries            = upstream.retries or 0, -- number of retries for the balancer
@@ -96,7 +78,7 @@ function BalancerHandler:access()
             return ngx.exit(503)
         end
         ngx.ctx.balancer_address = balancer_addr
-        ngx.var.upstream_url = target
+        ngx.var.upstream_url = 'orange_upstream'
     end
 end
 
