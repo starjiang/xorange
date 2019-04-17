@@ -1,7 +1,7 @@
 local type = type
 local tonumber = tonumber
 local ngx_md5 = ngx.md5
-local string_gsub = string.gsub
+local string_gsub = ngx.re.gsub
 local template = require("resty.template")
 template.print = function(s)
   return s
@@ -14,13 +14,12 @@ local function compose(extractor_type, tmpl, variables)
     end
 
     if not extractor_type or extractor_type == 1 then
-        -- replace with ngx.re.gsub
-        local result = string_gsub(tmpl, "%${([1-9]+)}", function(m)
-            local t = type(variables[tonumber(m)])
+        local result = string_gsub(tmpl, '\\${([1-9]+)}', function(m)
+            local t = type(variables[tonumber(m[1])])
             if t ~= "string" and t ~= "number" then
-                return "${" .. m .. "}"
+                return "${" .. m[1] .. "}"
             end
-            return variables[tonumber(m)]
+            return variables[tonumber(m[1])]
         end)
 
         return result
