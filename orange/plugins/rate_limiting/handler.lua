@@ -96,11 +96,15 @@ function RateLimitingHandler:access(conf)
     RateLimitingHandler.super.access(self)
     
     local enable = orange_db.get("rate_limiting.enable")
+    if not enable or enable ~= true then
+        return
+    end
+
     local meta = orange_db.get_json("rate_limiting.meta")
     local selectors = orange_db.get_json("rate_limiting.selectors")
     local ordered_selectors = meta and meta.selectors
     
-    if not enable or enable ~= true or not meta or not ordered_selectors or not selectors then
+    if not meta or not ordered_selectors or not selectors then
         return
     end
 

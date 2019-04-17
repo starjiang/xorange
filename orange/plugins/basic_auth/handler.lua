@@ -87,11 +87,14 @@ function BasicAuthHandler:access(conf)
     BasicAuthHandler.super.access(self)
     
     local enable = orange_db.get("basic_auth.enable")
+    if not enable or enable ~= true then
+        return
+    end
     local meta = orange_db.get_json("basic_auth.meta")
     local selectors = orange_db.get_json("basic_auth.selectors")
     local ordered_selectors = meta and meta.selectors
     
-    if not enable or enable ~= true or not meta or not ordered_selectors or not selectors then
+    if  not meta or not ordered_selectors or not selectors then
         return
     end
     

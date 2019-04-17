@@ -94,11 +94,15 @@ function DynamicUpstreamHandler:access(conf)
     DynamicUpstreamHandler.super.access(self)
 
     local enable = orange_db.get("dynamic_upstream.enable")
+    if not enable or enable ~= true then
+        return
+    end
+
     local meta = orange_db.get_json("dynamic_upstream.meta")
     local selectors = orange_db.get_json("dynamic_upstream.selectors")
     local ordered_selectors = meta and meta.selectors
 
-    if not enable or enable ~= true or not meta or not ordered_selectors or not selectors then
+    if not meta or not ordered_selectors or not selectors then
         return
     end
     ngx.log(ngx.INFO, "[DynamicUpstream] check selectors")

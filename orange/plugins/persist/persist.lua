@@ -77,9 +77,8 @@ end
 local function write_data(config)
 
     local enable = orange_db.get("persist.enable")
-    local meta = orange_db.get_json("persist.meta")
     
-    if not enable or enable ~= true or not meta then
+    if not enable or enable ~= true then
         return
     end
 

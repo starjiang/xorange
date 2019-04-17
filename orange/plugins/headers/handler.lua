@@ -47,11 +47,15 @@ function HeaderHandler:rewrite(conf)
     HeaderHandler.super.rewrite(self)
 
     local enable = orange_db.get("headers.enable")
+    if not enable or enable ~= true then
+        return
+    end
+
     local meta = orange_db.get_json("headers.meta")
     local selectors = orange_db.get_json("headers.selectors")
     local ordered_selectors = meta and meta.selectors
 
-    if not enable or enable ~= true or not meta or not ordered_selectors or not selectors then
+    if not meta or not ordered_selectors or not selectors then
         return
     end
 

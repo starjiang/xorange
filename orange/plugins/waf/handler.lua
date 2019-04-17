@@ -61,11 +61,15 @@ function WAFHandler:access(conf)
     WAFHandler.super.access(self)
 
     local enable = orange_db.get("waf.enable")
+    if not enable or enable ~= true then
+        return
+    end
+
     local meta = orange_db.get_json("waf.meta")
     local selectors = orange_db.get_json("waf.selectors")
     local ordered_selectors = meta and meta.selectors
 
-    if not enable or enable ~= true or not meta or not ordered_selectors or not selectors then
+    if not meta or not ordered_selectors or not selectors then
         return
     end
     ngx.log(ngx.INFO, "[WAF]check selectors")

@@ -99,11 +99,15 @@ function PropertyRateLimitingHandler:access(conf)
     PropertyRateLimitingHandler.super.access(self)
 
     local enable = orange_db.get(plugin_config.table_name..".enable")
+    if not enable or enable ~= true then
+        return
+    end
+
     local meta = orange_db.get_json(plugin_config.table_name..".meta")
     local selectors = orange_db.get_json(plugin_config.table_name..".selectors")
     local ordered_selectors = meta and meta.selectors
 
-    if not enable or enable ~= true or not meta or not ordered_selectors or not selectors then
+    if not meta or not ordered_selectors or not selectors then
         return
     end
 

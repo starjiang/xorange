@@ -27,10 +27,14 @@ function BalancerHandler:access()
     BalancerHandler.super.access(self)
 
     local enable = orange_db.get("balancer.enable")
+    if not enable or enable ~= true then
+        return
+    end
+
     local meta = orange_db.get_json("balancer.meta")
     local selectors = orange_db.get_json("balancer.selectors")
 
-    if not enable or enable ~= true or not meta or not selectors then
+    if  not meta or not selectors then
         return
     end
 
