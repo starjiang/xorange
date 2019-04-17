@@ -1,7 +1,6 @@
 local BasePlugin = require("orange.plugins.base_handler")
 local orange_db = require("orange.store.orange_db")
-local balancer_execute = require("orange.utils.balancer").execute
-local invalidate_target = require("orange.utils.balancer").invalidate_target
+local balancer= require("orange.utils.balancer")
 local utils = require("orange.utils.utils")
 local ngx_balancer = require "ngx.balancer"
 local string_find = string.find
@@ -88,7 +87,7 @@ function BalancerHandler:access()
 
     -- run balancer_execute once before the `balancer` context
     if balancer_addr then
-        local ok = balancer_execute(balancer_addr)
+        local ok = balancer.execute(balancer_addr)
         if not ok then
             return ngx.exit(503)
         end
@@ -121,10 +120,10 @@ function BalancerHandler:balancer()
         local previous_try = tries[addr.try_count - 1]
         previous_try.state, previous_try.code = get_last_failure()
         if previous_try.state == 'failed' and addr.try_count >1 then
-            ngx.log(ngx.ERR,"invalidate upstream target:",addr.host,",",addr.ip,",",addr.port)
-            invalidate_target(addr.host,addr.ip..":"..addr.port)
+            ngx.log(ngx.ERR,"target not available,invalidate the target:",addr.host,",",addr.ip,",",addr.port)
+            balancer.invalidate_target(addr.host,addr.hostname..":"..addr.port)
         end
-        local ok = balancer_execute(addr)
+        local ok = balancer.execute(addr)
         if not ok then
             return ngx.exit(503)
         end

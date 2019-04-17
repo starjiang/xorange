@@ -86,10 +86,19 @@ function Balancer:new(targets,method)
     instance._targets = targets
     instance._pos = 1
     instance._method = method
+    instance._total_weight = 0
     setmetatable(instance, { __index = self })
     return instance
 end
 
+
+function Balancer:_get_total_weight()
+    local total = 0
+    for i,v in ipairs(self._targets) do
+        total = total+v.weight
+    end
+    return total
+end
 
 function Balancer:get_targets()
     return self._targets
@@ -101,34 +110,33 @@ end
 
 function Balancer:_get_index()
 
+    if self._total_weight == 0 then
+        self._total_weight = self:_get_total_weight()
+    end
+    local index = 1
     if self._method == 'random_weight' then 
-        local total = 0
-        for i,v in ipairs(self._targets) do
-            total = total+v.weight
-        end
-
-        local random = math.random(1,total)
-        for i = 1,#self._targets do
-          local weight = self._targets[i].weight or 0
-          random = random - weight
-          if random <= 0 then
-            return i
-          end
-        end
-        return 1
+        index = math.random(1,self._total_weight)
     elseif self._method == 'ip_hash' then
         local seq = ngx.crc32_short(ngx.var.remote_addr)
-        local index = math.abs(seq) % #self._targets
-        return index+1
+        local index = math.abs(seq) % self._total_weight 
+        index = index+1
     else --default round_robin
-        if self._pos > #self._targets then
+        if self._pos > self._total_weight then
             self._pos = 1
         end
-
-        local index = self._pos
+        index = self._pos
         self._pos = self._pos+1
-        return index
     end
+
+    for i = 1,#self._targets do
+        local weight = self._targets[i].weight or 0
+        index = index - weight
+        if index <= 0 then
+          return i
+        end
+    end
+    return 1 
+
 end
 
 function Balancer:get_peer()
@@ -250,8 +258,10 @@ local function execute(target)
     end
 end
 
-return {
+local _M = {
     invalidate_target = invalidate_target,
     execute = execute,
     invalidate_balancer = invalidate_balancer,
 }
+
+return _M
