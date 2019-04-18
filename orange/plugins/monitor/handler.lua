@@ -3,10 +3,11 @@ local orange_db = require("orange.store.orange_db")
 local stat = require("orange.plugins.monitor.stat")
 local judge_util = require("orange.utils.judge")
 local BasePlugin = require("orange.plugins.base_handler")
+local rules_cache = require("orange.utils.rules_cache")
 
 
 local function filter_rules(sid, plugin, ngx_var_uri)
-    local rules = orange_db.get_json(plugin .. ".selector." .. sid .. ".rules")
+    local rules = rules_cache.get_rules(plugin,sid)
     if not rules or type(rules) ~= "table" or #rules <= 0 then
         return false
     end
@@ -55,8 +56,8 @@ function URLMonitorHandler:log(conf)
     if not enable or enable ~= true then
         return
     end
-    local meta = orange_db.get_json("monitor.meta")
-    local selectors = orange_db.get_json("monitor.selectors")
+    local meta = rules_cache.get_meta("monitor")
+    local selectors = rules_cache.get_selectors("monitor")
     local ordered_selectors = meta and meta.selectors
     
     if not meta or not ordered_selectors or not selectors then

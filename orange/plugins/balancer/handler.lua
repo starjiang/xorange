@@ -2,6 +2,7 @@ local BasePlugin = require("orange.plugins.base_handler")
 local orange_db = require("orange.store.orange_db")
 local balancer= require("orange.utils.balancer")
 local utils = require("orange.utils.utils")
+local rules_cache = require("orange.utils.rules_cache")
 local ngx_balancer = require "ngx.balancer"
 local string_find = string.find
 
@@ -31,8 +32,9 @@ function BalancerHandler:access()
         return
     end
 
-    local meta = orange_db.get_json("balancer.meta")
-    local selectors = orange_db.get_json("balancer.selectors")
+
+    local meta = rules_cache.get_meta("balancer")
+    local selectors = rules_cache.get_selectors("balancer")
 
     if  not meta or not selectors then
         return

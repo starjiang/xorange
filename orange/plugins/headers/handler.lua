@@ -4,6 +4,7 @@ local ngx_re_sub = ngx.re.sub
 local ngx_re_find = ngx.re.find
 local string_sub = string.sub
 local orange_db = require("orange.store.orange_db")
+local rules_cache = require("orange.utils.rules_cache")
 local judge_util = require("orange.utils.judge")
 local extractor_util = require("orange.utils.extractor")
 local handle_util = require("orange.utils.handle")
@@ -14,7 +15,7 @@ local ngx_decode_args = ngx.decode_args
 
 
 local function filter_rules(sid, plugin)
-    local rules = orange_db.get_json(plugin .. ".selector." .. sid .. ".rules")
+    local rules = rules_cache.get_rules(plugin,sid)
 
     if not rules or type(rules) ~= "table" or #rules <= 0 then
         return false
@@ -51,8 +52,8 @@ function HeaderHandler:rewrite(conf)
         return
     end
 
-    local meta = orange_db.get_json("headers.meta")
-    local selectors = orange_db.get_json("headers.selectors")
+    local meta = rules_cache.get_meta("headers")
+    local selectors = rules_cache.get_selectors("headers")
     local ordered_selectors = meta and meta.selectors
 
     if not meta or not ordered_selectors or not selectors then

@@ -9,6 +9,7 @@ local orange_db = require("orange.store.orange_db")
 local judge_util = require("orange.utils.judge")
 local handle_util = require("orange.utils.handle")
 local BasePlugin = require("orange.plugins.base_handler")
+local rules_cache = require("orange.utils.rules_cache")
 
 string.split = function(s, p)
     local rt= {}
@@ -60,7 +61,7 @@ local function is_authorized(credentials, headers, query)
 end
 
 local function filter_rules(sid, plugin, ngx_var_uri, headers, query)
-    local rules = orange_db.get_json(plugin .. ".selector." .. sid .. ".rules")
+    local rules = rules_cache.get_rules(plugin,sid)
     if not rules or type(rules) ~= "table" or #rules <= 0 then
         return false
     end
@@ -118,8 +119,8 @@ function JwtAuthHandler:access(conf)
         return
     end
 
-    local meta = orange_db.get_json("jwt_auth.meta")
-    local selectors = orange_db.get_json("jwt_auth.selectors")
+    local meta = rules_cache.get_meta("jwt_auth")
+    local selectors = rules_cache.get_selectors("jwt_auth")
     local ordered_selectors = meta and meta.selectors
     
     if not meta or not ordered_selectors or not selectors then

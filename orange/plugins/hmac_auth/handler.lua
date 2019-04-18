@@ -16,6 +16,7 @@ local ngx_encode_base64 = ngx.encode_base64
 local orange_db         = require "orange.store.orange_db"
 local judge_util        = require "orange.utils.judge"
 local BasePlugin        = require "orange.plugins.base_handler"
+local rules_cache       = require "orange.utils.rules_cache"
 local ngx_hmac_sha1     = ngx.hmac_sha1
 --local openssl_hmac      = require "openssl.hmac"
 
@@ -132,7 +133,7 @@ local function is_authorized(credentials, headers)
 end
 
 local function filter_rules(selector_id, ngx_var_uri, headers)
-    local rules = orange_db.get_json(PLUGIN_NAME .. ".selector." .. selector_id .. ".rules")
+    local rules = rules_cache.get_rules(PLUGIN_NAME,selector_id)
     if not rules or type(rules) ~= "table" or #rules <= 0 then
         return false
     end
@@ -184,12 +185,12 @@ function HmacAuthHandler:access(conf)
         return
     end
     -- 获取插件选择器信息
-    local selectors = orange_db.get_json(PLUGIN_NAME .. ".selectors")
+    local selectors = rules_cache.get_selectors(PLUGIN_NAME)
     if not selectors then
         return
     end
     -- 获取插件元信息
-    local meta = orange_db.get_json(PLUGIN_NAME .. ".meta")
+    local meta = rules_cache.get_meta(PLUGIN_NAME)
     -- 获取信息中选择器IDs
     local ordered_selectors = meta and meta.selectors
     if not ordered_selectors then

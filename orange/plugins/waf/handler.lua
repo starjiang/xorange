@@ -6,10 +6,11 @@ local extractor_util = require("orange.utils.extractor")
 local handle_util = require("orange.utils.handle")
 local BasePlugin = require("orange.plugins.base_handler")
 local stat = require("orange.plugins.waf.stat")
+local rules_cache = require("orange.utils.rules_cache")
 
 
 local function filter_rules(sid, plugin, ngx_var_uri)
-    local rules = orange_db.get_json(plugin .. ".selector." .. sid .. ".rules")
+    local rules = rules_cache.get_rules(plugin,sid)
     if not rules or type(rules) ~= "table" or #rules <= 0 then
         return false
     end
@@ -65,8 +66,8 @@ function WAFHandler:access(conf)
         return
     end
 
-    local meta = orange_db.get_json("waf.meta")
-    local selectors = orange_db.get_json("waf.selectors")
+    local meta = rules_cache.get_meta("waf")
+    local selectors = rules_cache.get_selectors("waf")
     local ordered_selectors = meta and meta.selectors
 
     if not meta or not ordered_selectors or not selectors then

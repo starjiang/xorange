@@ -7,6 +7,7 @@ local orange_db = require("orange.store.orange_db")
 local judge_util = require("orange.utils.judge")
 local handle_util = require("orange.utils.handle")
 local BasePlugin = require("orange.plugins.base_handler")
+local rules_cache = require("orange.utils.rules_cache")
 
 
 local function is_credential_in_header(headers, key, target_value)
@@ -85,7 +86,7 @@ local function get_body(content_type)
 end
 
 local function filter_rules(sid, plugin, ngx_var_uri, headers, body, query)
-    local rules = orange_db.get_json(plugin .. ".selector." .. sid .. ".rules")
+    local rules = rules_cache.get_rules(plugin,sid)
     if not rules or type(rules) ~= "table" or #rules <= 0 then
         return false
     end
@@ -143,8 +144,8 @@ function KeyAuthHandler:access(conf)
         return
     end
 
-    local meta = orange_db.get_json("key_auth.meta")
-    local selectors = orange_db.get_json("key_auth.selectors")
+    local meta = rules_cache.get_meta("key_auth")
+    local selectors = rules_cache.get_selectors("key_auth")
     local ordered_selectors = meta and meta.selectors
     
     if not meta or not ordered_selectors or not selectors then
