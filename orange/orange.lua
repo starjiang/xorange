@@ -9,11 +9,6 @@ local utils = require("orange.utils.utils")
 local config_loader = require("orange.utils.config_loader")
 local dao = require("orange.store.dao")
 
-local HEADERS = {
-    PROXY_LATENCY = "X-Orange-Proxy-Latency",
-    UPSTREAM_LATENCY = "X-Orange-Upstream-Latency",
-}
-
 local loaded_plugins = {}
 
 local function load_node_plugins(config, store)
@@ -119,78 +114,27 @@ function Orange.init_cookies()
 end
 
 function Orange.redirect()
-    ngx.ctx.ORANGE_REDIRECT_START = now()
-
     for _, plugin in ipairs(loaded_plugins) do
         plugin.handler:redirect()
     end
-
-    local now_time = now()
-    ngx.ctx.ORANGE_REDIRECT_TIME = now_time - ngx.ctx.ORANGE_REDIRECT_START
-    ngx.ctx.ORANGE_REDIRECT_ENDED_AT = now_time
 end
 
 function Orange.rewrite()
-    ngx.ctx.ORANGE_REWRITE_START = now()
-
     for _, plugin in ipairs(loaded_plugins) do
         plugin.handler:rewrite()
     end
-
-    local now_time = now()
-    ngx.ctx.ORANGE_REWRITE_TIME = now_time - ngx.ctx.ORANGE_REWRITE_START
-    ngx.ctx.ORANGE_REWRITE_ENDED_AT = now_time
 end
 
 
 function Orange.access()
-    ngx.ctx.ORANGE_ACCESS_START = now()
-
     for _, plugin in ipairs(loaded_plugins) do
         plugin.handler:access()
     end
-
-    local now_time = now()
-    ngx.ctx.ORANGE_ACCESS_TIME = now_time - ngx.ctx.ORANGE_ACCESS_START
-    ngx.ctx.ORANGE_ACCESS_ENDED_AT = now_time
-    ngx.ctx.ORANGE_PROXY_LATENCY = now_time - ngx.req.start_time() * 1000
-    ngx.ctx.ACCESSED = true
 end
 
 function Orange.balancer()
     for _, plugin in ipairs(loaded_plugins) do
         plugin.handler:balancer()
-    end
-end
-
-function Orange.header_filter()
-
-    if ngx.ctx.ACCESSED then
-        local now_time = now()
-        ngx.ctx.ORANGE_WAITING_TIME = now_time - ngx.ctx.ORANGE_ACCESS_ENDED_AT -- time spent waiting for a response from upstream
-        ngx.ctx.ORANGE_HEADER_FILTER_STARTED_AT = now_time
-    end
-
-    for _, plugin in ipairs(loaded_plugins) do
-        plugin.handler:header_filter()
-    end
-
-    if ngx.ctx.ACCESSED then
-        ngx.header[HEADERS.UPSTREAM_LATENCY] = ngx.ctx.ORANGE_WAITING_TIME
-        ngx.header[HEADERS.PROXY_LATENCY] = ngx.ctx.ORANGE_PROXY_LATENCY
-    end
-end
-
-function Orange.body_filter()
-    for _, plugin in ipairs(loaded_plugins) do
-        plugin.handler:body_filter()
-    end
-
-    if ngx.ctx.ACCESSED then
-        if ngx.ctx.ORANGE_HEADER_FILTER_STARTED_AT == nil then
-            ngx.ctx.ORANGE_HEADER_FILTER_STARTED_AT = 0
-        end
-        ngx.ctx.ORANGE_RECEIVE_TIME = now() - ngx.ctx.ORANGE_HEADER_FILTER_STARTED_AT
     end
 end
 
