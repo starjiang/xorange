@@ -18,13 +18,13 @@ function DB:exec(sql)
     local conf = self.conf
     local db, err = mysql:new()
     if not db then
-        return nil,err
+        return nil,"failed to init mysql: "..err
     end
     db:set_timeout(conf.timeout) -- 1 sec
 
     local ok, err, errno, sqlstate = db:connect(conf.connect_config)
     if not ok then
-        return nil,err
+        return nil,"failed to connect: "..err..": "..tostring(errno)
     end
 
     local res, err, errno, sqlstate = db:query(sql)
@@ -46,22 +46,27 @@ end
 function DB:insert(sql, params)
     local res, err = self:query(sql, params)
     if res and not err then
-        return  res.insert_id, err
+        return  res.insert_id, nil
     else
-        return res, err
+        return nil, err
     end
 end
 
 function DB:update(sql, params)
-    return self:query(sql, params)
+    local res, err = self:query(sql, params)
+    if res and not err then
+        return res.affected_rows, nil
+    else
+        return nil, err
+    end
 end
 
 function DB:delete(sql, params)
     local res, err = self:query(sql, params)
     if res and not err then
-        return res.affected_rows, err
+        return res.affected_rows, nil
     else
-        return res, err
+        return nil, err
     end
 end
 

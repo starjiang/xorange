@@ -13,7 +13,6 @@ local ngx_INFO          = ngx.INFO
 local ngx_parse_time    = ngx.parse_http_time
 local ngx_re_match      = ngx.re.match
 local ngx_encode_base64 = ngx.encode_base64
-local orange_db         = require "orange.store.orange_db"
 local judge_util        = require "orange.utils.judge"
 local BasePlugin        = require "orange.plugins.base_handler"
 local rules_cache       = require "orange.utils.rules_cache"
@@ -180,7 +179,7 @@ end
 function HmacAuthHandler:access(conf)
     HmacAuthHandler.super.access(self)
     -- 获取插件启用状态
-    local enable = orange_db.get(PLUGIN_NAME .. ".enable")
+    local enable = rules_cache.get_enable(PLUGIN_NAME)
     if not enable then
         return
     end

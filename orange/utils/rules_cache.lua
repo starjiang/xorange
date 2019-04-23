@@ -3,6 +3,18 @@ local _M = {}
 
 local expired_time =  5
 
+function _M.get_enable(plugin)
+  local key = plugin..".enable"
+  local info = _M[key]
+  if info and info.expired_time +expired_time > ngx.now() then
+    return info.data
+  else
+    local data = orange_db.get(key)
+    _M[key]={data=data,expired_time=ngx.now()}
+    return data
+  end
+end
+
 function _M.get_meta(plugin)
   local key = plugin..".meta"
   local info = _M[key]

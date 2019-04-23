@@ -5,7 +5,6 @@ local string_find = string.find
 local jwt = require("resty.jwt")
 local utils = require("orange.utils.utils")
 local cjson = require("cjson")
-local orange_db = require("orange.store.orange_db")
 local judge_util = require("orange.utils.judge")
 local handle_util = require("orange.utils.handle")
 local BasePlugin = require("orange.plugins.base_handler")
@@ -114,7 +113,7 @@ end
 function JwtAuthHandler:access(conf)
     JwtAuthHandler.super.access(self)
     
-    local enable = orange_db.get("jwt_auth.enable")
+    local enable = rules_cache.get_enable("jwt_auth")
     if not enable or enable ~= true then
         return
     end

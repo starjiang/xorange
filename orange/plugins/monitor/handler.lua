@@ -1,5 +1,4 @@
 local ipairs = ipairs
-local orange_db = require("orange.store.orange_db")
 local stat = require("orange.plugins.monitor.stat")
 local judge_util = require("orange.utils.judge")
 local BasePlugin = require("orange.plugins.base_handler")
@@ -52,7 +51,7 @@ end
 function URLMonitorHandler:log(conf)
     URLMonitorHandler.super.log(self)
 
-    local enable = orange_db.get("monitor.enable")
+    local enable = rules_cache.get_enable("monitor")
     if not enable or enable ~= true then
         return
     end

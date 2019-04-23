@@ -6,7 +6,6 @@ local string_gsub = string.gsub
 local tabel_insert = table.insert
 
 local utils = require("orange.utils.utils")
-local orange_db = require("orange.store.orange_db")
 local judge_util = require("orange.utils.judge")
 local handle_util = require("orange.utils.handle")
 local BasePlugin = require("orange.plugins.base_handler")
@@ -126,7 +125,7 @@ end
 function SignatureAuthHandler:access(conf)
     SignatureAuthHandler.super.access(self)
 
-    local enable = orange_db.get("signature_auth.enable")
+    local enable = rules_cache.get_enable("signature_auth")
     if not enable or enable ~= true then
         return
     end

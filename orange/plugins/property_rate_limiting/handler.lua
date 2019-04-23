@@ -4,7 +4,6 @@ local tostring = tostring
 local table_concat = table.concat;
 
 local utils = require("orange.utils.utils")
-local orange_db = require("orange.store.orange_db")
 local judge_util = require("orange.utils.judge")
 local BasePlugin = require("orange.plugins.base_handler")
 local plugin_config =  require("orange.plugins.property_rate_limiting.plugin")
@@ -99,7 +98,7 @@ end
 function PropertyRateLimitingHandler:access(conf)
     PropertyRateLimitingHandler.super.access(self)
 
-    local enable = orange_db.get(plugin_config.table_name..".enable")
+    local enable = rules_cache.get_enable(plugin_config.table_name)
     if not enable or enable ~= true then
         return
     end

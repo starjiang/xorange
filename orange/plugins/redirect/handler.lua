@@ -2,7 +2,6 @@ local ipairs = ipairs
 local tonumber = tonumber
 local string_find = string.find
 local ngx_redirect = ngx.redirect
-local orange_db = require("orange.store.orange_db")
 local judge_util = require("orange.utils.judge")
 local extractor_util = require("orange.utils.extractor")
 local handle_util = require("orange.utils.handle")
@@ -77,7 +76,7 @@ end
 function RedirectHandler:redirect()
     RedirectHandler.super.redirect(self)
 
-    local enable = orange_db.get("redirect.enable")
+    local enable = rules_cache.get_enable("redirect")
     if not enable or enable ~= true then
         return
     end

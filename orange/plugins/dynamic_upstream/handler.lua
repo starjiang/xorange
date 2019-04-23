@@ -3,7 +3,6 @@ local ipairs = ipairs
 local ngx_re_sub = ngx.re.sub
 local ngx_re_find = ngx.re.find
 local string_sub = string.sub
-local orange_db = require("orange.store.orange_db")
 local rules_cache = require("orange.utils.rules_cache")
 local judge_util = require("orange.utils.judge")
 local extractor_util = require("orange.utils.extractor")
@@ -95,7 +94,7 @@ end
 function DynamicUpstreamHandler:access(conf)
     DynamicUpstreamHandler.super.access(self)
 
-    local enable = orange_db.get("dynamic_upstream.enable")
+    local enable = rules_cache.get_enable("dynamic_upstream")
     if not enable or enable ~= true then
         return
     end

@@ -33,7 +33,6 @@ return function(plugin)
                         })
                     end
                 end
-
                 res:json({
                     success = false,
                     msg = (enable == true and "failed to enable plugin" or "failed to disable plugin")
@@ -191,9 +190,10 @@ return function(plugin)
                         })
                     end
                 else
+
                     return res:json({
                         success = false,
-                        msg = "fail to create rule"
+                        msg = "fail to create rule,error:"
                     })
                 end
 
@@ -256,7 +256,7 @@ return function(plugin)
 
                 res:json({
                     success = false,
-                    msg = "update rule to db error"
+                    msg = "update rule to db error:"
                 })
             end
         end,
@@ -557,7 +557,7 @@ return function(plugin)
                 else
                     return res:json({
                         success = false,
-                        msg = "error to save data when creating selector"
+                        msg = "error to save data when creating selector:"
                     })
                 end
             end

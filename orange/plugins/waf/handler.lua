@@ -1,6 +1,5 @@
 local pairs = pairs
 local ipairs = ipairs
-local orange_db = require("orange.store.orange_db")
 local judge_util = require("orange.utils.judge")
 local extractor_util = require("orange.utils.extractor")
 local handle_util = require("orange.utils.handle")
@@ -19,10 +18,6 @@ local function filter_rules(sid, plugin, ngx_var_uri)
         if rule.enable == true then
             -- judge阶段
             local pass = judge_util.judge_rule(rule, plugin)
-
-            -- extract阶段
-            local variables = extractor_util.extract_variables(rule.extractor)
-
             -- handle阶段
             if pass then
                 local handle = rule.handle
@@ -61,7 +56,7 @@ end
 function WAFHandler:access(conf)
     WAFHandler.super.access(self)
 
-    local enable = orange_db.get("waf.enable")
+    local enable = rules_cache.get_enable("waf")
     if not enable or enable ~= true then
         return
     end
@@ -73,7 +68,7 @@ function WAFHandler:access(conf)
     if not meta or not ordered_selectors or not selectors then
         return
     end
-    ngx.log(ngx.INFO, "[WAF]check selectors")
+    ngx.log(ngx.INFO, "[WAF] check selectors")
 
     local ngx_var_uri = ngx.var.uri
     for i, sid in ipairs(ordered_selectors) do

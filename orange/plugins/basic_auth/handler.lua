@@ -5,7 +5,7 @@ local string_format = string.format
 local string_gsub = string.gsub
 
 local utils = require("orange.utils.utils")
-local orange_db = require("orange.store.orange_db")
+local rules_cache = require("orange.utils.rules_cache")
 local judge_util = require("orange.utils.judge")
 local handle_util = require("orange.utils.handle")
 local BasePlugin = require("orange.plugins.base_handler")
@@ -34,7 +34,7 @@ local function is_authorized(authorization, credentials)
 end
 
 local function filter_rules(sid, plugin, ngx_var_uri, authorization)
-    local rules = orange_db.get_json(plugin .. ".selector." .. sid .. ".rules")
+    local rules = rules_cache.get_rules(plugin, sid)
     if not rules or type(rules) ~= "table" or #rules <= 0 then
         return false
     end
@@ -86,12 +86,12 @@ end
 function BasicAuthHandler:access(conf)
     BasicAuthHandler.super.access(self)
     
-    local enable = orange_db.get("basic_auth.enable")
+    local enable = rules_cache.get_enable("basic_auth")
     if not enable or enable ~= true then
         return
     end
-    local meta = orange_db.get_json("basic_auth.meta")
-    local selectors = orange_db.get_json("basic_auth.selectors")
+    local meta = rules_cache.get_meta("basic_auth")
+    local selectors = rules_cache.get_selectors("basic_auth")
     local ordered_selectors = meta and meta.selectors
     
     if  not meta or not ordered_selectors or not selectors then

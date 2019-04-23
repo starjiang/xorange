@@ -3,7 +3,6 @@ local type = type
 local tostring = tostring
 
 local utils = require("orange.utils.utils")
-local orange_db = require("orange.store.orange_db")
 local judge_util = require("orange.utils.judge")
 local BasePlugin = require("orange.plugins.base_handler")
 local counter = require("orange.plugins.rate_limiting.counter")
@@ -96,7 +95,7 @@ end
 function RateLimitingHandler:access(conf)
     RateLimitingHandler.super.access(self)
     
-    local enable = orange_db.get("rate_limiting.enable")
+    local enable = rules_cache.get_enable("rate_limiting")
     if not enable or enable ~= true then
         return
     end

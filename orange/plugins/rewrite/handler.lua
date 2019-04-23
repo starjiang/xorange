@@ -3,7 +3,6 @@ local ipairs = ipairs
 local ngx_re_sub = ngx.re.sub
 local ngx_re_find = ngx.re.find
 local string_sub = string.sub
-local orange_db = require("orange.store.orange_db")
 local judge_util = require("orange.utils.judge")
 local extractor_util = require("orange.utils.extractor")
 local handle_util = require("orange.utils.handle")
@@ -72,7 +71,7 @@ end
 function RewriteHandler:rewrite(conf)
     RewriteHandler.super.rewrite(self)
 
-    local enable = orange_db.get("rewrite.enable")
+    local enable = rules_cache.get_enable("rewrite")
     if not enable or enable ~= true then
         return
     end

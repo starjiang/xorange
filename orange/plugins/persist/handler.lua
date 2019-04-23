@@ -1,6 +1,6 @@
 local BasePlugin = require("orange.plugins.base_handler")
 local persist = require("orange.plugins.persist.persist")
-local orange_db = require("orange.store.orange_db")
+local rules_cache = require("orange.utils.rules_cache")
 
 local PersistHandler = BasePlugin:extend()
 PersistHandler.PRIORITY = 1999
@@ -18,7 +18,7 @@ end
 function PersistHandler:log()
     PersistHandler.super.log(self)
 
-    local enable = orange_db.get("persist.enable")
+    local enable = rules_cache.get_enable("persist")
     if not enable or enable ~= true then
         return
     end

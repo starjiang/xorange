@@ -1,5 +1,4 @@
 local BasePlugin = require("orange.plugins.base_handler")
-local orange_db = require("orange.store.orange_db")
 local balancer= require("orange.utils.balancer")
 local utils = require("orange.utils.utils")
 local rules_cache = require("orange.utils.rules_cache")
@@ -27,11 +26,10 @@ end
 function BalancerHandler:access()
     BalancerHandler.super.access(self)
 
-    local enable = orange_db.get("balancer.enable")
+    local enable = rules_cache.get_enable("balancer")
     if not enable or enable ~= true then
         return
     end
-
 
     local meta = rules_cache.get_meta("balancer")
     local selectors = rules_cache.get_selectors("balancer")
@@ -87,7 +85,7 @@ end
 function BalancerHandler:balancer()
     BalancerHandler.super.balancer(self)
 
-    local enable = orange_db.get("balancer.enable")
+    local enable = rules_cache.get_enable("balancer")
     if not enable or enable ~= true then
         return
     end

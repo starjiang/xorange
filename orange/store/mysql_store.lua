@@ -25,12 +25,7 @@ function MySQLStore:query(opts)
         params = opts.params
     end
 
-    res, err = self.db:query(sql, params)
-    if err then
-        return nil,err
-    end
-
-    return res,nil
+    return self.db:query(sql, params)
 end
 
 function MySQLStore:insert(opts)
@@ -39,17 +34,11 @@ function MySQLStore:insert(opts)
     local param_type = type(opts)
     local res, err
     if param_type == "string" then
-        res, err = self.db:query(opts)
+        return self.db:insert(opts)
     elseif param_type == "table" then
-        res, err = self.db:query(opts.sql, opts.params or {})
+        return self.db:insert(opts.sql, opts.params or {})
     end
-
-    if res and not err then
-        return true
-    else
-        ngx.log(ngx.ERR, "MySQLStore:insert error:", err)
-        return false
-    end
+    return nil,"invalid params type"
 end
 
 function MySQLStore:delete(opts)
@@ -57,17 +46,11 @@ function MySQLStore:delete(opts)
     local param_type = type(opts)
     local res, err
     if param_type == "string" then
-        res, err = self.db:query(opts)
+        return self.db:delete(opts)
     elseif param_type == "table" then
-        res, err = self.db:query(opts.sql, opts.params or {})
+        return self.db:delete(opts.sql, opts.params or {})
     end
-
-    if res and not err then
-        return true
-    else
-        ngx.log(ngx.ERR, "MySQLStore:delete error:", err)
-        return false
-    end
+    return nil,"invalid params type"
 end
 
 function MySQLStore:update(opts)
@@ -75,17 +58,11 @@ function MySQLStore:update(opts)
     local param_type = type(opts)
     local res, err
     if param_type == "string" then
-        res, err = self.db:query(opts)
+        return self.db:update(opts)
     elseif param_type == "table" then
-        res, err = self.db:query(opts.sql, opts.params or {})
+        return self.db:update(opts.sql, opts.params or {})
     end
-
-    if res and not err then
-        return true
-    else
-        ngx.log(ngx.ERR, "MySQLStore:update error:", err)
-        return false
-    end
+    return nil,"invalid params type"
 end
 
 return MySQLStore

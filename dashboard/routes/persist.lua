@@ -15,7 +15,7 @@ return function(config, store)
     persist_router:get("/persist/api_stats", function(req, res, next)
         local ip = req.query.ip or ''
         local period = tonumber(req.query.period) or 5
-        local data = load_node_plugins
+        local data
         if ip == '' then
             data = persist_model:get_api_stats(period)
         else

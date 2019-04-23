@@ -83,14 +83,14 @@ function _M.delete_rules_of_selector(plugin, store, rule_ids)
         return true
     end
 
-    local delete_result = store:delete({
+    local delete_result,err = store:delete({
         sql = "delete from " .. plugin .. " where `key` in (" .. to_delete_rules_ids .. ") and `type`=?",
         params = { "rule" }
     })
     if delete_result then
         return true
     else
-        ngx.log(ngx.ERR, "delete rules of selector err, ", rule_ids)
+        ngx.log(ngx.ERR, "delete rules of selector err:",err)
         return false
     end
 end
@@ -100,14 +100,14 @@ function _M.delete_selector(plugin, store, selector_id)
         return true
     end
 
-    local delete_result = store:delete({
+    local delete_result,err = store:delete({
         sql = "delete from " .. plugin .. " where `key` = ? and `type` = ?",
         params = { selector_id, "selector" }
     })
     if delete_result then
         return true
     else
-        ngx.log(ngx.ERR, "delete selector err, ", selector_id)
+        ngx.log(ngx.ERR, "delete selector ", selector_id," err:",err)
         return false
     end
 end
@@ -121,7 +121,7 @@ function _M.get_meta(plugin, store)
     if not err and meta and type(meta) == "table" and #meta > 0 then
         return meta[1]
     else
-        ngx.log(ngx.ERR, "[FATAL ERROR]meta not found while it must exist.")
+        ngx.log(ngx.ERR, "meta not found while it must exist,err:",err)
         return nil
     end
 end
@@ -137,12 +137,16 @@ function _M.update_meta(plugin, store, meta)
         return false
     end
 
-    local result = store:update({
+    local result,err = store:update({
         sql = "update " .. plugin .. " set `value` = ? where `type` = ?",
         params = {meta_json_str, "meta"}
     })
-
-    return result
+    if result then
+        return true
+    else
+        ngx.log(ngx.ERR,"update_meta fail:",err)
+        return false
+    end
 end
 
 function _M.update_selector(plugin, store, selector)
@@ -156,12 +160,18 @@ function _M.update_selector(plugin, store, selector)
         return false
     end
 
-    local result = store:update({
+    local result,err = store:update({
         sql = "update " .. plugin .. " set `value` = ? where `key`=? and `type` = ?",
         params = {selector_json_str, selector.id, "selector"}
     })
 
-    return result
+    if result then
+        return true
+    else
+        ngx.log(ngx.ERR,"update_selector fail:",err)
+        return false
+    end
+
 end
 
 function _M.update_local_meta(plugin, store)
@@ -248,24 +258,46 @@ function _M.update_local_selector_rules(plugin, store, selector_id)
 end
 
 function _M.create_selector(plugin, store, selector)
-    return store:insert({
+    local res,err = store:insert({
         sql = "insert into " .. plugin .. "(`key`, `value`, `type`, `op_time`) values(?,?,?,?)",
         params = { selector.id, json.encode(selector), "selector", selector.time }
     })
+    if res then
+        return true
+    else
+        ngx.log(ngx.ERR,"create_selector fail:",err)
+        return false
+    end
 end
 
 function _M.update_rule(plugin, store, rule)
-    return store:update({
+    local res,err =  store:update({
         sql = "update " .. plugin .. " set `value`=?,`op_time`=? where `key`=? and `type`=?",
         params = { json.encode(rule), rule.time, rule.id, "rule" }
     })
+
+    if res then
+        return true
+    else
+        ngx.log(ngx.ERR,"update_rule fail:",err)
+        return false
+    end
+
 end
 
 function _M.create_rule(plugin, store, rule)
-    return store:insert({
+    local res,err = store:insert({
         sql = "insert into " .. plugin .. "(`key`, `value`, `op_time`, `type`) values(?,?,?,?)",
         params = { rule.id, json.encode(rule), rule.time, "rule" }
     })
+
+    if res then
+        return true
+    else
+        ngx.log(ngx.ERR,"create_rule fail:",err)
+        return false
+    end
+
 end
 
 function _M.get_enable(plugin, store)
@@ -276,10 +308,18 @@ function _M.get_enable(plugin, store)
 end
 
 function _M.update_enable(plugin, store, enable)
-    return store:update({
+    local res,err =  store:update({
         sql = "replace into meta SET `key`=?, `value`=?",
         params = { plugin .. ".enable", enable }
     })
+
+    if res then
+        return true
+    else
+        ngx.log(ngx.ERR,"update_enable fail:",err)
+        return false
+    end
+
 end
 
 

@@ -3,7 +3,6 @@ local type = type
 local string_find = string.find
 
 local utils = require("orange.utils.utils")
-local orange_db = require("orange.store.orange_db")
 local judge_util = require("orange.utils.judge")
 local handle_util = require("orange.utils.handle")
 local BasePlugin = require("orange.plugins.base_handler")
@@ -139,7 +138,7 @@ end
 function KeyAuthHandler:access(conf)
     KeyAuthHandler.super.access(self)
     
-    local enable = orange_db.get("key_auth.enable")
+    local enable = rules_cache.get_enable("key_auth")
     if not enable or enable ~= true then
         return
     end

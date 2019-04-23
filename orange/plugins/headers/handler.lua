@@ -3,7 +3,6 @@ local ipairs = ipairs
 local ngx_re_sub = ngx.re.sub
 local ngx_re_find = ngx.re.find
 local string_sub = string.sub
-local orange_db = require("orange.store.orange_db")
 local rules_cache = require("orange.utils.rules_cache")
 local judge_util = require("orange.utils.judge")
 local extractor_util = require("orange.utils.extractor")
@@ -47,7 +46,7 @@ end
 function HeaderHandler:rewrite(conf)
     HeaderHandler.super.rewrite(self)
 
-    local enable = orange_db.get("headers.enable")
+    local enable = rules_cache.get_enable("headers")
     if not enable or enable ~= true then
         return
     end

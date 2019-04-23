@@ -157,6 +157,7 @@ return function(config, store)
     dashboard_router:get("/waf", function(req, res, next)
         res:render("waf")
     end)
+    
 
     dashboard_router:get("/help", function(req, res, next)
         res:render("help")

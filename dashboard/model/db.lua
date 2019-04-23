@@ -21,31 +21,30 @@ function DB:exec(sql)
     local conf = self.conf
     local db, err = mysql:new()
     if not db then
-        ngx.log(ngx.ERR, "failed to instantiate mysql: ", err)
-        return
+        return nil,"failed to init mysql: "..err
     end
+
     db:set_timeout(conf.timeout) -- 1 sec
 
     local ok, err, errno, sqlstate = db:connect(conf.connect_config)
     if not ok then
-        ngx.log(ngx.ERR, "failed to connect: ", err, ": ", errno, " ", sqlstate)
-        return
+        return nil,"failed to connect: "..err..": "..tostring(errno)
     end
-
-    ngx.log(ngx.INFO, "connected to mysql, reused_times:", db:get_reused_times(), " sql:", sql)
 
     db:query("SET NAMES utf8")
+
     local res, err, errno, sqlstate = db:query(sql)
-    if not res or err then
-        ngx.log(ngx.ERR, "bad result: ", err, ": ", errno, ": ", sqlstate, ".")
-    end
 
     local ok, err = db:set_keepalive(conf.pool_config.max_idle_timeout, conf.pool_config.pool_size)
     if not ok then
-        ngx.log(ngx.ERR, "failed to set keepalive: ", err)
+        return nil,"failed to set keepalive: "..err
     end
 
-    return res, err, errno, sqlstate
+    if res then
+        return res,nil
+    else
+        return nil,err..": "..tostring(errno)
+    end
 end
 
 
@@ -60,24 +59,29 @@ function DB:select(sql, params)
 end
 
 function DB:insert(sql, params)
-    local res, err, errno, sqlstate = self:query(sql, params)
+    local res, err = self:query(sql, params)
     if res and not err then
-        return  res.insert_id, err
+        return  res.insert_id, nil
     else
-        return res, err
+        return nil, err
     end
 end
 
 function DB:update(sql, params)
-    return self:query(sql, params)
-end
-
-function DB:delete(sql, params)
-    local res, err, errno, sqlstate = self:query(sql, params)
+    local res, err = self:query(sql, params)
     if res and not err then
         return res.affected_rows, err
     else
-        return res, err
+        return nil, err
+    end
+end
+
+function DB:delete(sql, params)
+    local res, err = self:query(sql, params)
+    if res and not err then
+        return res.affected_rows, err
+    else
+        return nil, err
     end
 end
 
