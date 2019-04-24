@@ -55,11 +55,11 @@ CREATE TABLE `balancer` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 
 /*Data for the table `balancer` */
 
-insert  into `balancer`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-16 18:32:21');
+insert  into `balancer`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-25 00:10:08');
 
 /*Table structure for table `basic_auth` */
 
@@ -94,7 +94,7 @@ CREATE TABLE `cluster_node` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`ip`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 /*Data for the table `cluster_node` */
 
@@ -129,11 +129,11 @@ CREATE TABLE `dynamic_upstream` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 /*Data for the table `dynamic_upstream` */
 
-insert  into `dynamic_upstream`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-16 18:31:26');
+insert  into `dynamic_upstream`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-25 00:09:29');
 
 /*Table structure for table `headers` */
 
@@ -147,11 +147,11 @@ CREATE TABLE `headers` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 /*Data for the table `headers` */
 
-insert  into `headers`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-16 18:31:34');
+insert  into `headers`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-23 22:05:48');
 
 /*Table structure for table `hmac_auth` */
 
@@ -170,6 +170,19 @@ CREATE TABLE `hmac_auth` (
 /*Data for the table `hmac_auth` */
 
 insert  into `hmac_auth`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{}','meta','2016-11-11 11:11:11');
+
+/*Table structure for table `ip_list` */
+
+DROP TABLE IF EXISTS `ip_list`;
+
+CREATE TABLE `ip_list` (
+  `ip` varchar(20) NOT NULL DEFAULT '',
+  `rule_id` varchar(100) NOT NULL DEFAULT '',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ip`,`rule_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+/*Data for the table `ip_list` */
 
 /*Table structure for table `key_auth` */
 
@@ -200,11 +213,11 @@ CREATE TABLE `meta` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8;
 
 /*Data for the table `meta` */
 
-insert  into `meta`(`id`,`key`,`value`,`op_time`) values (7,'divide.enable','1','2019-04-09 23:02:16'),(15,'redirect.enable','0','2019-04-11 22:50:50'),(18,'node.enable','1','2019-04-13 22:55:55'),(19,'headers.enable','0','2019-04-15 10:55:09'),(20,'monitor.enable','0','2019-04-15 10:55:17'),(21,'property_rate_limiting.enable','0','2019-04-15 10:55:24'),(23,'persist.enable','0','2019-04-16 18:33:28'),(24,'dynamic_upstream.enable','0','2019-04-16 18:33:39'),(25,'balancer.enable','0','2019-04-16 18:33:43'),(26,'waf.enable','0','2019-04-16 18:33:51');
+insert  into `meta`(`id`,`key`,`value`,`op_time`) values (15,'redirect.enable','0','2019-04-11 22:50:50'),(18,'node.enable','1','2019-04-13 22:55:55'),(19,'headers.enable','0','2019-04-15 10:55:09'),(20,'monitor.enable','0','2019-04-15 10:55:17'),(21,'property_rate_limiting.enable','0','2019-04-15 10:55:24'),(29,'balancer.enable','1','2019-04-16 21:47:07'),(30,'waf.enable','1','2019-04-18 09:42:44'),(32,'persist.enable','1','2019-04-24 23:47:57'),(34,'dynamic_upstream.enable','1','2019-04-25 00:09:33');
 
 /*Table structure for table `monitor` */
 
@@ -272,11 +285,11 @@ CREATE TABLE `property_rate_limiting` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 /*Data for the table `property_rate_limiting` */
 
-insert  into `property_rate_limiting`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-16 18:32:38');
+insert  into `property_rate_limiting`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-25 00:10:21');
 
 /*Table structure for table `rate_limiting` */
 
@@ -290,11 +303,11 @@ CREATE TABLE `rate_limiting` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 /*Data for the table `rate_limiting` */
 
-insert  into `rate_limiting`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-16 18:32:29');
+insert  into `rate_limiting`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-25 00:10:15');
 
 /*Table structure for table `redirect` */
 
@@ -362,11 +375,11 @@ CREATE TABLE `waf` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
 /*Data for the table `waf` */
 
-insert  into `waf`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-16 18:32:50');
+insert  into `waf`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-25 00:11:23');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
