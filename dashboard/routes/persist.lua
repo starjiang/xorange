@@ -6,7 +6,7 @@ return function(config, store)
     local persist_model = require("dashboard.model.persist")(config)
 
     persist_router:get("/persist", function(req, res, next)
-        res:render("persist-api-stat", {
+        res:render("persist", {
             id = req.query.id,
             ip = req.query.ip
         })

@@ -7,6 +7,7 @@ local dashboard_router = require("dashboard.routes.dashboard")
 local auth_router = require("dashboard.routes.auth")
 local admin_router = require("dashboard.routes.admin")
 local persist_router = require("dashboard.routes.persist")
+local waf_router = require("dashboard.routes.waf")
 local node_router = require("dashboard.routes.node")
 local lor = require("lor.index")
 
@@ -57,6 +58,9 @@ function _M:build_app()
 
     -- persist router
     app:use(persist_router(config)())
+
+    -- waf router
+    app:use(waf_router(config)())
     -- routes
     app:use(dashboard_router(config, store)())
 

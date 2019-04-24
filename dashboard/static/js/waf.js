@@ -35,93 +35,120 @@
             L.Common.initExtractionHasDefaultValueOrNotEvent();//提取项是否有默认值选择事件
 
             _this.initHandleTypeChangeEvent();//handle类型选择事件
-            _this.initStatBtnEvent();//统计按钮事件
+            _this.initIpListTable();
+            _this.initIpEditBtnEvent();
+            _this.initIpAddBtnEvent();
+            _this.initIpRemoveBtnEvent();
+            _this.initIpRemoveSelectedEvent();
 
             L.Common.initViewAndDownloadEvent(op_type, _this);
             L.Common.initSwitchBtn(op_type, _this);//redirect关闭、开启
             L.Common.initSyncDialog(op_type, _this);//编辑规则对话框
         },
-
-        initStatBtnEvent: function () {
-            $("#stat-btn").click(function () {//试图转换
-                var self = $(this);
-                var now_state = $(this).attr("data-show");
-                if (now_state == "true") {
-                    self.attr("data-show", "false");
-                    $.ajax({
-                        url: '/waf/stat',
-                        type: 'get',
-                        cache:false,
-                        data: {},
-                        dataType: 'json',
-                        success: function (result) {
-                            if (result.success) {
-                                if (result.data && result.data.statistics) {
-                                    $("#stat-area").html('');
-                                    $("#stat-view").show();
-                                    $("#stat-area").css("height", "400px");
-                                    _this.initStatChart(result.data);
-                                } else {
-                                    $("#stat-area").html('<p style="text-align: center">没有统计数据</p>');
-                                    $("#stat-area").css("height", "100px");
-                                    $("#stat-view").show();
-                                }
-
-                            } else {
-                                L.Common.showTipDialog("错误提示", "查询waf统计请求发生错误");
-                            }
-                        },
-                        error: function () {
-                            L.Common.showTipDialog("提示", "查询waf统计请求发生异常");
-                        }
-                    });
-                } else {
-                    self.attr("data-show", "true");
-                    $("#stat-view").hide();
-                }
-            });
-        },
-
-        initStatChart: function (data) {
-            var keys = [];
-            var outer_data = [];
-
-            var statistics = data.statistics;
-            for(var i=0; i < statistics.length;i++){
-                var s = statistics[i];
-                keys.push(s.rule_id);
+        initIpRemoveSelectedEvent:function(){
+            
+            $(document).on("click", "#btn_remove_selected", function() {
+                var ip_list = _this.getSelectItems().join(',')
+                var rule_id = $("#rule_id").val();
+                $.getJSON("/waf/delete_ip?ip="+ip_list+"&rule_id="+rule_id,function(res){
                 
-                outer_data.push({
-                    value: s.count,
-                    name: s.rule_id
-                });
-            }
-
-            var option = {
-                tooltip: {
-                    trigger: 'item',
-                    formatter: "{a} <br/>{b}: {c} ({d}%)"
-                },
-                legend: {
-                    orient: 'vertical',
-                    x: 'left',
-                    data: keys
-                },
-                series: [
-                    
-                    {
-                        name: '规则',
-                        type: 'pie',
-
-                        data: outer_data
-                    }
-                ]
-            };
-
-            var statChart = echarts.init(document.getElementById('stat-area'));
-            statChart.setOption(option);
+                if(res.ret == 0){
+                    var $table = $('#ip_list');
+                    $table.bootstrapTable('refresh',{url:'/waf/ip_list?rule_id='+rule_id});
+                }else{
+                    alert('删除失败');
+                }
+                })
+            })
         },
+        getSelectItems:function(){
+            var $table = $('#ip_list');
+            return $.map($table.bootstrapTable('getSelections'), function (row) {
+                return row.ip
+            })
+        },
+        initIpEditBtnEvent:function(){
+            $(document).on("click", ".edit-ip-btn", function() {
+  
+                var d = dialog({
+                    title: '例外IP名单管理',
+                    content: document.getElementById('ip-list-tpl')
+                  });
+                  d.showModal();
+                  var rule_id = $(this).attr("data-id");
+                  var $table = $('#ip_list');
+                  $table.bootstrapTable('refresh',{url:'/waf/ip_list?rule_id='+rule_id});
+                  $("#rule_id").val(rule_id);
+            })
+        },
+        isValidIp:function(ip){
+            var reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
+            return reg.test(ip);
+        },
+        initIpAddBtnEvent:function(){
+            $(document).on("click", "#btn_add_ip", function() {
+                var ip = $("#ip_address").val()
+                var rule_id = $("#rule_id").val()
 
+                if(!_this.isValidIp(ip)){
+                    alert('ip地址格式不对');
+                    return
+                }
+                $.getJSON("/waf/add_ip?ip="+ip+"&rule_id="+rule_id,function(res){
+                
+                if(res.ret == 0){
+                    var ip = $("#ip_address").val("")
+                    var $table = $('#ip_list');
+                    $table.bootstrapTable('refresh',{url:'/waf/ip_list?rule_id='+rule_id});
+                }else{
+                    alert('添加失败:'+res.msg);
+                }
+                })
+            })
+        },
+        initIpRemoveBtnEvent:function(){
+            $(document).on("click", ".ip_remove", function() {
+                var ip = $(this).attr("data-ip");
+                var rule_id = $(this).attr("data-rule-id");
+                $.getJSON("/waf/delete_ip?ip="+ip+"&rule_id="+rule_id,function(res){
+                
+                if(res.ret == 0){
+                    var $table = $('#ip_list');
+                    $table.bootstrapTable('refresh',{url:'/waf/ip_list?rule_id='+rule_id});
+                }else{
+                    alert('删除失败');
+                }
+                })
+            })
+        },
+        initIpListTable:function(){
+            var $table = $('#ip_list')
+            $table.bootstrapTable('destroy').bootstrapTable({
+                height:500,
+                locale: "zh-CN",
+                columns: [
+                {
+                    checkbox: true,
+                    title: '操作',
+                    field: 'operate',
+                    align: 'center',
+                },
+                {
+                    title: 'ip',
+                    field: 'ip',
+                    align: 'left',
+                },{
+                    field: 'delete',
+                    title: '删除',
+                    align: 'center',
+                    formatter: _this.operateFormatter
+                }
+                ]
+            })
+        },
+        operateFormatter:function(value, row, index) {
+            return '<a class="ip_remove" data-ip="'+row['ip']+'" data-rule-id="'+row['rule_id']+'" href="javascript:void(0)" title="Remove"><i class="fa fa-trash"></i></a>';
+        },
         //handle类型选择事件
         initHandleTypeChangeEvent: function () {
             $(document).on("change", '#rule-handle-perform', function () {
@@ -195,8 +222,6 @@
 
                 handle.code = parseInt(handle_code);
             }
-
-            handle.stat = ($("#rule-handle-stat").val() === "true");
             handle.log = ($("#rule-handle-log").val() === "true");
             result.success = true;
             result.handle = handle;

@@ -4,9 +4,8 @@ local judge_util = require("orange.utils.judge")
 local extractor_util = require("orange.utils.extractor")
 local handle_util = require("orange.utils.handle")
 local BasePlugin = require("orange.plugins.base_handler")
-local stat = require("orange.plugins.waf.stat")
 local rules_cache = require("orange.utils.rules_cache")
-
+local ip_list_cache = ngx.shared.waf_ip_list
 
 local function filter_rules(sid, plugin, ngx_var_uri)
     local rules = rules_cache.get_rules(plugin,sid)
@@ -21,12 +20,19 @@ local function filter_rules(sid, plugin, ngx_var_uri)
             -- handle阶段
             if pass then
                 local handle = rule.handle
-                if handle.stat == true then
-                    local key = rule.id -- rule.name .. ":" .. rule.id
-                    stat.count(key, 1)
+                local ip = ip_list_cache:get("waf."..rule.id.."."..ngx.var.remote_addr)
+                local perform = handle.perform
+
+                if ip then
+                    ngx.log(ngx.INFO,"[",ip,"] in [",rule.name,"] extra ip list")
+                    if perform == 'allow' then
+                        perform = 'deny'
+                    else
+                        perform = 'allow'
+                    end
                 end
 
-                if handle.perform == 'allow' then
+                if perform == 'allow' then
                     if handle.log == true then
                         ngx.log(ngx.INFO, "[WAF-Pass-Rule] ", rule.name, " uri:", ngx_var_uri)
                     end

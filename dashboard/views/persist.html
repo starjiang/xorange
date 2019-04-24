@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {(common/meta.html)}
+</head>
+
+<body class="fixed-sidebar full-height-layout gray-bg">
+<div id="wrapper">
+    {(common/left_nav.html)}<!-- 左侧导航 -->
+
+    <!--右侧部分开始-->
+    <div id="page-wrapper" class="gray-bg dashbard-1">
+        <div class="row J_mainContent">
+            <div class="row content-header">
+                <div class="col-md-12">
+                    <div class="pull-left">
+                        <h4 class="head_title">API调用统计</h4>
+                    </div>
+                    <div class="pull-right">
+                        <a id="switch-btn" data-on="yes" class="btn btn-danger" rel="nofollow"
+                           href="javascript:void(0);">
+                            <i class="fa fa-pause"></i>
+                            <span>停用该插件</span>
+                        </a>
+                        <a class="btn btn-default" href="javascript:void(0);" id="sync-btn">
+                            <i class="fa fa-refresh"></i>
+                            <span>同步配置</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+      
+            <div class="row">
+              <div id="time-set">
+                <span class="l">最近</span>
+                <a href="javascript:void(0);" class="active time_range" data-minutes="1">1分钟</a> /
+                <a href="javascript:void(0);" class="time_range" data-minutes="5">5分钟</a> /
+                <a href="javascript:void(0);" class="time_range" data-minutes="15">15分钟</a> /
+                <a href="javascript:void(0);" class="time_range" data-minutes="30">30分钟</a> /
+                <a href="javascript:void(0);" class="time_range" data-minutes="60">1小时</a> /
+                <a href="javascript:void(0);" class="time_range" data-minutes="180">3小时</a> /
+                <a href="javascript:void(0);" class="time_range" data-minutes="360">6小时</a> /
+                <a href="javascript:void(0);" class="time_range" data-minutes="720">12小时</a> /
+                <a href="javascript:void(0);" class="time_range" data-minutes="1440">24小时</a>
+                <span class="l">统计数据</span>
+                <span>{{ip}}</span>
+              </div>
+              <table
+              id="api_stats_list"
+              data-toolbar="#time-set"
+              data-show-refresh="true"
+              data-search="true"
+              data-pagination="true"
+              data-toggle="table"
+              data-page-size="15"
+              data-page-list="[15, 30, 60, 120]"
+              data-url="/persist/api_stats?period=1&ip={{ ip }}">
+              </table>
+            <div>
+            <div class="row" id="graphbox" style="display:none">
+              <div id="time-set2">
+                <span>最近</span>
+                <a href="javascript:void(0);" class="active time_range2" data-minutes="60">1小时</a> /
+                <a href="javascript:void(0);" class="time_range2" data-minutes="180">3小时</a> /
+                <a href="javascript:void(0);" class="time_range2" data-minutes="360">6小时</a> /
+                <a href="javascript:void(0);" class="time_range2" data-minutes="720">12小时</a> /
+                <a href="javascript:void(0);" class="time_range2" data-minutes="1440">1天</a> /
+                <a href="javascript:void(0);" class="time_range2" data-minutes="2880">2天</a> /
+                <a href="javascript:void(0);" class="time_range2" data-minutes="4320">3天</a> /
+                <a href="javascript:void(0);" class="time_range2" data-minutes="10080">7天</a>              
+                <span>曲线</span>
+              </div>
+              <input type="hidden" id="api" value=""/>
+              <input type="hidden" id="domain" value=""/>
+              <div style="width:800px;height:400px;padding-top:20px;" id="request-area"></div>
+            </div>
+        </div><!-- content end -->
+    </div><!--右侧部分结束-->
+</div>
+
+<input type="hidden" id="ip-input" value="{{ ip }}"/>
+
+{(common/selector-item-tpl.html)}
+{(common/common_js.html)}<!-- 通用js -->
+<script src="/static/js/echarts3/echarts.common.min.js"></script>
+<script src="/static/js/persist.js"></script>
+<script type="text/javascript">
+
+Date.prototype.format=function(fmt) {           
+    var o = {           
+    "M+" : this.getMonth()+1, //月份           
+    "d+" : this.getDate(), //日           
+    "h+" : this.getHours()%12 == 0 ? 12 : this.getHours()%12, //小时           
+    "H+" : this.getHours(), //小时           
+    "m+" : this.getMinutes(), //分           
+    "s+" : this.getSeconds(), //秒           
+    "q+" : Math.floor((this.getMonth()+3)/3), //季度           
+    "S" : this.getMilliseconds() //毫秒           
+    };           
+    var week = {           
+    "0" : "/u65e5",           
+    "1" : "/u4e00",           
+    "2" : "/u4e8c",           
+    "3" : "/u4e09",           
+    "4" : "/u56db",           
+    "5" : "/u4e94",           
+    "6" : "/u516d"          
+    };           
+    if(/(y+)/.test(fmt)){           
+        fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));           
+    }           
+    if(/(E+)/.test(fmt)){           
+        fmt=fmt.replace(RegExp.$1, ((RegExp.$1.length>1) ? (RegExp.$1.length>2 ? "/u661f/u671f" : "/u5468") : "")+week[this.getDay()+""]);           
+    }           
+    for(var k in o){           
+        if(new RegExp("("+ k +")").test(fmt)){           
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));           
+        }           
+    }           
+    return fmt;           
+}         
+
+$(document).ready(function () {
+  APP.Persist.init();
+});
+
+
+</script>
+</body>
+</html>

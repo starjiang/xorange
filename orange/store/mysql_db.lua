@@ -24,7 +24,7 @@ function DB:exec(sql)
 
     local ok, err, errno, sqlstate = db:connect(conf.connect_config)
     if not ok then
-        return nil,"failed to connect: "..err..": "..tostring(errno)
+        return nil,"failed to connect: "..err
     end
 
     local res, err, errno, sqlstate = db:query(sql)

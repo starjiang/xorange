@@ -10,16 +10,7 @@
 
         <!--右侧部分开始-->
         <div id="page-wrapper" class="gray-bg dashbard-1">
-            <div class="row" id="stat-view" style="display: none;">
-                <div class="col-md-12">
-                    <div style="height:400px;padding-top:20px;" id="stat-area"></div>
-
-                </div>
-            </div>
-            
             <div class="row J_mainContent">
-                            
-
                 <!-- content start -->
                 <div class="row content-header">
                     <div class="col-md-12">
@@ -27,10 +18,6 @@
                             <h4 class="head_title">WAF 防火墙</h4>
                         </div>
                         <div class="pull-right">
-                            <a id="stat-btn" data-show="true" class="btn btn-success" rel="nofollow" href="javascript:void(0);">
-                                <i class="fa fa-bar-chart"></i>
-                                <span>统计</span>
-                            </a>
                              {(common/plugin-op.html)}
                         </div>
                     </div>
@@ -104,6 +91,7 @@
                             <small>${r.time}</small>
                         </td>
                         <td class="center rule-op-td">
+                            <a class="btn btn-white btn-sm edit-ip-btn" data-id="${r.id}" data-name="${r.name}"><i title="例外ip名单管理" class="fa fa-th"></i></a>
                             <a class="btn btn-white btn-sm edit-btn" data-id="${r.id}" data-name="${r.name}"><i title="编辑" class="fa fa-pencil"></i> </a>
                             <a class="btn btn-white btn-sm delete-btn" data-id="${r.id}" data-name="${r.name}"><i title="删除" class="fa fa-trash"></i></a>
                         </td>
@@ -144,12 +132,6 @@
                         <select class="form-control" id="rule-handle-log">
                             <option value="true">记录日志</option>
                             <option value="false">不记录日志</option>
-                        </select>
-                    </div>
-                    <div class="col-sm-2">
-                        <select class="form-control" id="rule-handle-stat">
-                            <option value="true">统计</option>
-                            <option value="false">不统计</option>
                         </select>
                     </div>
                 </div>
@@ -203,13 +185,6 @@
                             <option value="false" {@if r.handle.log==false} selected {@/if}>Not Log</option>
                         </select>
                     </div>
-
-                    <div class="col-sm-2">
-                        <select class="form-control" id="rule-handle-stat">
-                            <option value="true" {@if r.handle.stat==true} selected {@/if}>Stat</option>
-                            <option value="false" {@if r.handle.stat==false} selected {@/if}>Not Stat</option>
-                        </select>
-                    </div>
                 </div><!-- handle log-->
 
                 <div class="form-group">
@@ -226,6 +201,30 @@
         </div>
     </script>
 
+    <div id="ip-list-tpl" style="display:none">
+        <div id="toolbar">
+            <label class="text_inline">
+                <input type="text" id="ip_address" name="ip_address">
+            </label>
+            <label class="button_inline">
+                <input type="button" id="btn_add_ip" name="ip_address_add" value="添加">
+            </label>
+            <label class="button_inline">
+                <input type="button" id="btn_remove_selected" name="ip_address_del" value="删除选中">
+            </label>
+        </div>
+        <table
+        id="ip_list"
+        data-toolbar="#toolbar"
+        data-show-refresh="true"
+        data-search="true"
+        data-pagination="true"
+        data-toggle="table"
+        data-page-size="15"
+        data-page-list="[15, 30, 60, 120]">
+        </table>
+        <input type="hidden" id="rule_id">
+    </div>
 
     {(common/selector-item-tpl.html)}
     {(common/selector-add.html)}

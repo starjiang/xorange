@@ -28,22 +28,23 @@ function DB:exec(sql)
 
     local ok, err, errno, sqlstate = db:connect(conf.connect_config)
     if not ok then
-        return nil,"failed to connect: "..err..": "..tostring(errno)
+        return nil,"failed to connect: "..err
     end
 
     db:query("SET NAMES utf8")
-
+    ngx.log(ngx.INFO,sql)
     local res, err, errno, sqlstate = db:query(sql)
 
-    local ok, err = db:set_keepalive(conf.pool_config.max_idle_timeout, conf.pool_config.pool_size)
+    local ok, err1 = db:set_keepalive(conf.pool_config.max_idle_timeout, conf.pool_config.pool_size)
+    
     if not ok then
-        return nil,"failed to set keepalive: "..err
+        return nil,"failed to set keepalive: "..err1
     end
 
     if res then
         return res,nil
     else
-        return nil,err..": "..tostring(errno)
+        return nil,err
     end
 end
 

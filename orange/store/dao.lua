@@ -370,6 +370,23 @@ function _M.init_enable_of_plugin(plugin, store)
     return true
 end
 
+function _M.init_ip_list_of_waf(store)
+    local ip_list_cache = ngx.shared.waf_ip_list
+    local ip_list, err = store:query("select ip,rule_id from ip_list")
+
+    if err then
+        ngx.log(ngx.ERR, "Load `ip_list` of waf, error: ", err)
+        return false
+    end
+    
+    ip_list_cache:flush_all()
+
+    for i,v in ipairs(ip_list) do
+        ip_list_cache:set("waf."..v['rule_id'].."."..v['ip'],v['ip'])
+    end
+    return true
+end
+
 function _M.init_meta_of_plugin(plugin, store)
     local meta, err = store:query({
         sql = "select * from " .. plugin .. " where `type` = ? limit 1",
@@ -551,6 +568,13 @@ function _M.load_data_by_mysql(store, plugin)
                 return false
             else
                 ngx.log(ngx.INFO, "load data of plugin[" .. v .. "] success")
+            end
+
+            if v == 'waf' then
+                local init_waf_ip_list = _M.init_ip_list_of_waf(store)
+                if not init_waf_ip_list then
+                    ngx.log(ngx.ERR,"load waf ip list fail")
+                end
             end
         end
     end, function()
