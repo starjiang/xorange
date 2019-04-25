@@ -24,6 +24,10 @@ function _M.new(self, batch_num, max_buffering)
     return setmetatable(sendbuffer, mt)
 end
 
+function _M.reset(self)
+    self.start = 1
+    self.num = 0
+end
 
 function _M.add(self, topic, key, message)
     local num = self.num
