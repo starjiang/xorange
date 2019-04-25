@@ -27,25 +27,19 @@ end
 
 local _M = {}
 
-local function setinterval(callback, interval)
+local flush_interval = 60
 
-    local handler
-    handler = function()
-        if type(callback) == 'function' then
-            callback()
-        end
+local function start_flush_timer(premature,callback)
+    
+    local ok,err = pcall(callback)
 
-        local ok, err = ngx.timer.at(interval, handler)
-        if not ok then
-            ngx.log(ngx.ERR, "failed to create the timer: ", err)
-            return
-        end
+    if err then 
+        ngx.log(ngx.ERR,"flush data fail:",err)
     end
 
-    local ok, err = ngx.timer.at(interval, handler)
+    local ok, err = ngx.timer.at(flush_interval,start_flush_timer,callback)
     if not ok then
         ngx.log(ngx.ERR, "failed to create the timer: ", err)
-        return
     end
 end
 
@@ -175,30 +169,12 @@ end
 function _M.init(config)
     ngx.log(ngx.ERR, "persist init worker")
 
-    local interval = 60
-
-    -- 单进程，只执行一次
     if ngx.worker.id() == 0 then
-
-        local date_now = os.date('*t', ngx.time())
-        local second = date_now.sec
-
-        if second > 0 then
-            -- 矫正统计写入
-            ngx.timer.at(interval - 1 - second, function()
-
-                write_data(config)
-                -- 定时保存
-                setinterval(function()
-                    write_data(config)
-                end, interval)
-            end)
-        else
             -- 定时保存
-            setinterval(function()
-                write_data(config)
-            end, interval)
-        end
+        start_flush_timer(nil,function()
+            write_data(config)
+        end)
+        
     end
 end
 

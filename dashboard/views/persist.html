@@ -121,7 +121,8 @@ Date.prototype.format=function(fmt) {
 }         
 
 $(document).ready(function () {
-  APP.Persist.init();
+    APP.Common.resetNav("nav-persist");
+    APP.Persist.init();
 });
 
 

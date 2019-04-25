@@ -158,6 +158,9 @@ return function(config, store)
         res:render("waf")
     end)
     
+    dashboard_router:get("/kafka", function(req, res, next)
+        res:render("kafka")
+    end)
 
     dashboard_router:get("/help", function(req, res, next)
         res:render("help")

@@ -58,11 +58,12 @@ function Orange.init(options)
     local status, err = pcall(function()
         local conf_file_path = options.config
         config = config_loader.load(conf_file_path)
+        if not config then
+            ngx.log(ngx.ERR, "load orange config fail")
+            os.exit(1)
+        end
         store = require("orange.store.mysql_store")(config.store_mysql)
-
         loaded_plugins = load_node_plugins(config, store)
-        ngx.update_time()
-        config.orange_start_at = ngx.now()
     end)
 
     if not status or err then
