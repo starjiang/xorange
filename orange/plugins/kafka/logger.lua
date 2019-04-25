@@ -3,15 +3,15 @@ local producer = require "resty.kafka.producer"
 
 local _M = {}
 
-_M.buffer = {}
+local buffer = {}
 
 function _M.log(data)
-  table.insert(_M.buffer,data)
+  table.insert(buffer,data)
 end
 
 function _M.flush( )
 
-  if #_M.buffer == 0 then
+  if #buffer == 0 then
     return
   end
 
@@ -22,13 +22,13 @@ function _M.flush( )
   
   local bp = producer:new(broker_list, producer_config)
 
-  for i,v in ipairs(_M.buffer) do
+  for i,v in ipairs(buffer) do
     local ok, err = bp:send(kafka_topic, nil, cjson.encode(v))
     if not ok then
         ngx.log(ngx.ERR,"kafka send err:", err)
     end
   end
-  _M.buffer = {}
+  buffer = {}
 end
 
 return _M

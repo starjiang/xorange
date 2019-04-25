@@ -43,7 +43,7 @@ local function start_flush_timer(premature,callback)
     end
 end
 
-function concat(input)
+local function concat(input)
     local output = "("
     local len = #input
     for index, value in ipairs(input) do
