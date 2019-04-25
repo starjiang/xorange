@@ -234,7 +234,7 @@ local function _flush(premature, self)
 
         local partition_id, err = choose_partition(self, topic, key)
         if not partition_id then
-            partition_id = -1
+            break
         end
 
         local overflow = sendbuffer:add(topic, partition_id, key, msg)
