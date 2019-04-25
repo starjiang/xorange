@@ -249,11 +249,11 @@ CREATE TABLE `meta` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
 
 /*Data for the table `meta` */
 
-insert  into `meta`(`id`,`key`,`value`,`op_time`) values (15,'redirect.enable','0','2019-04-11 22:50:50'),(18,'node.enable','1','2019-04-13 22:55:55'),(19,'headers.enable','0','2019-04-15 10:55:09'),(20,'monitor.enable','0','2019-04-15 10:55:17'),(21,'property_rate_limiting.enable','0','2019-04-15 10:55:24'),(29,'balancer.enable','1','2019-04-16 21:47:07'),(30,'waf.enable','1','2019-04-18 09:42:44'),(32,'persist.enable','1','2019-04-24 23:47:57'),(34,'dynamic_upstream.enable','1','2019-04-25 00:09:33');
+insert  into `meta`(`id`,`key`,`value`,`op_time`) values (15,'redirect.enable','0','2019-04-11 22:50:50'),(18,'node.enable','1','2019-04-13 22:55:55'),(19,'headers.enable','0','2019-04-15 10:55:09'),(20,'monitor.enable','0','2019-04-15 10:55:17'),(21,'property_rate_limiting.enable','0','2019-04-15 10:55:24'),(29,'balancer.enable','1','2019-04-16 21:47:07'),(30,'waf.enable','1','2019-04-18 09:42:44'),(32,'persist.enable','1','2019-04-24 23:47:57'),(34,'dynamic_upstream.enable','1','2019-04-25 00:09:33'),(40,'kafka.enable','0','2019-04-25 18:51:19');
 
 /*Table structure for table `monitor` */
 
