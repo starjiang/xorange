@@ -311,8 +311,8 @@ function _M.new(self, broker_list, producer_config, cluster_name)
         error_handle = opts.error_handle,
         async = async,
         socket_config = cli.socket_config,
-        ringbuffer = ringbuffer:new(opts.batch_num or 200, opts.max_buffering or 50000),   -- 200, 50K
-        sendbuffer = sendbuffer:new(opts.batch_num or 200, opts.batch_size or 1048576)
+        ringbuffer = ringbuffer:new(opts.batch_num or 2000, opts.max_buffering or 50000),   -- 200, 50K
+        sendbuffer = sendbuffer:new(opts.batch_num or 2000, opts.batch_size or 10485760)
                         -- default: 1K, 1M
                         -- batch_size should less than (MaxRequestSize / 2 - 10KiB)
                         -- config in the kafka server, default 100M
