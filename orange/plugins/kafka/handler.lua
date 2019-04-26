@@ -6,7 +6,7 @@ local producer = require "resty.kafka.producer"
 
 local  KafkaHandler = BasePlugin:extend()
 KafkaHandler.PRIORITY = 2000
-local log_flush_interval = 5
+local log_flush_interval = 1
 
 function KafkaHandler:new(store)
     KafkaHandler.super.new(self, "kafka-plugin")
