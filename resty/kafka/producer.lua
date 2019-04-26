@@ -216,12 +216,6 @@ local _flush_buffer
 
 
 local function _flush(premature, self)
-    if not _flush_lock(self) then
-        if debug then
-            ngx_log(DEBUG, "previous flush not finished")
-        end
-        return
-    end
 
     local ringbuffer = self.ringbuffer
     local sendbuffer = self.sendbuffer
@@ -234,10 +228,9 @@ local function _flush(premature, self)
 
         local partition_id, err = choose_partition(self, topic, key)
         if not partition_id then
-            ringbuffer:reset()
-            return
+            partition_id = -1
         end
-
+ 
         local overflow = sendbuffer:add(topic, partition_id, key, msg)
         if overflow then    -- reached batch_size in one topic-partition
             break
@@ -266,22 +259,18 @@ local function _flush(premature, self)
     end
 
     _flush_unlock(self)
-
-    if ringbuffer:need_send() then
-        _flush_buffer(self)
-
-    elseif is_exiting() and ringbuffer:left_num() > 0 then
-        -- still can create 0 timer even exiting
-        _flush_buffer(self)
-    end
-
     return true
 end
 
 
 _flush_buffer = function (self)
+    if not _flush_lock(self) then
+        ngx.log(ngx.ERR, "previous flush not finished")
+        return
+    end
     local ok, err = timer_at(0, _flush, self)
     if not ok then
+        _flush_unlock(self)
         ngx_log(ERR, "failed to create timer at _flush_buffer, err: ", err)
     end
 end
