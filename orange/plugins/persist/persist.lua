@@ -31,12 +31,12 @@ local flush_interval = 60
 
 local function start_flush_timer(premature,callback)
     
-    local ok,err = pcall(callback)
-
-    if err then 
-        ngx.log(ngx.ERR,"flush data fail:",err)
+    if premature ~= nil then
+        local ok,err = pcall(callback)
+        if err then 
+            ngx.log(ngx.ERR,"flush data fail:",err)
+        end
     end
-
     local ok, err = ngx.timer.at(flush_interval,start_flush_timer,callback)
     if not ok then
         ngx.log(ngx.ERR, "failed to create the timer: ", err)
