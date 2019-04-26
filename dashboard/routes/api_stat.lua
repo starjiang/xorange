@@ -2,24 +2,24 @@ local lor = require("lor.index")
 
 return function(config, store)
 
-    local persist_router = lor:Router()
-    local persist_model = require("dashboard.model.persist")(config)
+    local api_stat_router = lor:Router()
+    local model = require("dashboard.model.api_stat")(config)
 
-    persist_router:get("/persist", function(req, res, next)
-        res:render("persist", {
+    api_stat_router:get("/api_stat", function(req, res, next)
+        res:render("api_stat", {
             id = req.query.id,
             ip = req.query.ip
         })
     end)
 
-    persist_router:get("/persist/api_stats", function(req, res, next)
+    api_stat_router:get("/api_stat/list", function(req, res, next)
         local ip = req.query.ip or ''
         local period = tonumber(req.query.period) or 5
         local data
         if ip == '' then
-            data = persist_model:get_api_stats(period)
+            data = model:get_api_stats(period)
         else
-            data = persist_model:get_api_stats_by_ip(period,ip)
+            data = model:get_api_stats_by_ip(period,ip)
         end
         res:json({
             total = #data,
@@ -27,16 +27,16 @@ return function(config, store)
         })
     end)
 
-    persist_router:get("/persist/api_stats_data", function(req, res, next)
+    api_stat_router:get("/api_stat/data", function(req, res, next)
         local ip = req.query.ip or ''
         local period = tonumber(req.query.period) or 1440
         local api = req.query.api or '/'
         local domain = req.query.domain or 'localhost'
         local data,err 
         if ip == '' then
-            data,err  = persist_model:get_api_stats_data(period,api,domain)
+            data,err  = model:get_api_stats_data(period,api,domain)
         else
-            data,err  = persist_model:get_api_stats_data(period,api,domain,ip)
+            data,err  = model:get_api_stats_data(period,api,domain,ip)
         end
         if err then 
             res:json({
@@ -54,5 +54,5 @@ return function(config, store)
     end)
 
 
-    return persist_router
+    return api_stat_router
 end

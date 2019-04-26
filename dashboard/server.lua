@@ -6,7 +6,7 @@ local check_is_admin_middleware = require("dashboard.middleware.check_is_admin")
 local dashboard_router = require("dashboard.routes.dashboard")
 local auth_router = require("dashboard.routes.auth")
 local admin_router = require("dashboard.routes.admin")
-local persist_router = require("dashboard.routes.persist")
+local api_stat_router = require("dashboard.routes.api_stat")
 local waf_router = require("dashboard.routes.waf")
 local node_router = require("dashboard.routes.node")
 local lor = require("lor.index")
@@ -57,7 +57,7 @@ function _M:build_app()
     end
 
     -- persist router
-    app:use(persist_router(config)())
+    app:use(api_stat_router(config)())
 
     -- waf router
     app:use(waf_router(config)())

@@ -1,5 +1,5 @@
 local socket = require("socket")
-local orange_db = require("orange.store.orange_db")
+local rules_cache = require("orange.utils.rules_cache")
 local stringy = require("orange.utils.stringy")
 local status = ngx.shared.status
 local api_status = ngx.shared.api_status
@@ -58,7 +58,7 @@ end
 
 local function write_data(config)
 
-    local enable = orange_db.get("persist.enable")
+    local enable = rules_cache.get_enable("api_stat")
     
     if not enable or enable ~= true then
         return

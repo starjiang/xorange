@@ -54,7 +54,7 @@
               data-toggle="table"
               data-page-size="15"
               data-page-list="[15, 30, 60, 120]"
-              data-url="/persist/api_stats?period=1&ip={{ ip }}">
+              data-url="/api_stat/list?period=1&ip={{ ip }}">
               </table>
             <div>
             <div class="row" id="graphbox" style="display:none">
@@ -83,7 +83,7 @@
 {(common/selector-item-tpl.html)}
 {(common/common_js.html)}<!-- 通用js -->
 <script src="/static/js/echarts3/echarts.common.min.js"></script>
-<script src="/static/js/persist.js"></script>
+<script src="/static/js/api_stat.js"></script>
 <script type="text/javascript">
 
 Date.prototype.format=function(fmt) {           
@@ -121,8 +121,8 @@ Date.prototype.format=function(fmt) {
 }         
 
 $(document).ready(function () {
-    APP.Common.resetNav("nav-persist");
-    APP.Persist.init();
+    APP.Common.resetNav("nav-api-stat");
+    APP.ApiStat.init();
 });
 
 

@@ -1,16 +1,16 @@
 (function (L) {
   var _this = null;
-  L.Persist = L.Persist || {};
-  _this = L.Persist = {
+  L.ApiStat = L.ApiStat || {};
+  _this = L.ApiStat = {
     data: {
     },
     init: function () {
-        L.Common.loadConfigs("persist", _this, true);
+        L.Common.loadConfigs("api_stat", _this, true);
         _this.initEvents();
     },
     initEvents:function(){
-      L.Common.initSwitchBtn("persist", _this);
-      L.Common.initSyncDialog("persist", _this);
+      L.Common.initSwitchBtn("api_stat", _this);
+      L.Common.initSyncDialog("api_stat", _this);
 
       _this.initTable()
       _this.initTimeRangeEvent();
@@ -24,7 +24,7 @@
         $(this).addClass('active');
         var $table = $('#api_stats_list');
         var ip = $("#ip-input").val();
-        $table.bootstrapTable('refresh',{url:'/persist/api_stats?period='+minutes+'&ip='+ip});
+        $table.bootstrapTable('refresh',{url:'/api_stat/list?period='+minutes+'&ip='+ip});
       });
     },
     initTimeRange2Event:function(){
@@ -64,7 +64,7 @@
       });
     },
     getApiStatsDataAndRender:function(period,api,domain,ip){
-      $.getJSON("/persist/api_stats_data?period="+period+"&api="+api+"&domain="+domain+"&ip="+ip,function(res){
+      $.getJSON("/api_stat/data?period="+period+"&api="+api+"&domain="+domain+"&ip="+ip,function(res){
         statsData = {} 
         for(index in res.data){
           statsData[res.data[index].stat_time]=res.data[index];
