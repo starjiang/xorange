@@ -4,7 +4,7 @@
 * 可根据规范编写自定义插件扩展Orange功能
 
 * orange 源项目地址 https://github.com/sumory/orange
-## 在源项目v0.7版本基础上，进行开发改进，去掉一些插件，修复一些问题
+## 在源项目v0.7版本基础上，进行开发改进，去掉一些插件，修复一些问题，达到生产环境可用
 * 去除divide,kvstore,persist 等应用场景使用较少或功能重复插件
 * 添加了api 统计插件，可方便观察各个api 各时段数据及曲线图
 * 除了cosocket 依赖需要luarocks 安装外，其余依赖以源码方式集成到项目中
@@ -13,6 +13,7 @@
 * 强化kafka nginx 日志插件，解决当qps 很大时内存疯涨问题
 * 强化header 插件，不但可以添加请求http头，还可以增加返回http头
 * 强化waf 插件，增加IP 黑白名单控制
+* 优化了规则每次读取性能，不需要每次都需要json反序列化，提升性能
 ## 安装
 * git clone 项目git地址
 * 复制项目到 /usr/local/orange 下
