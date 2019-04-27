@@ -11,7 +11,12 @@
 * rewrite 插件，实现 url rewrite
 * redirect 插件，实现 url redirect
 * dynamic_upstream 插件，根据规则实现请求分流，转发，负载均衡，AB Testing
-* balancer 插件，管理up_stream 
+* balancer 插件，管理up_stream 池，实现负载均衡算法
+* rate_limiting 插件，根据规则，实现频率限制
+* property_rate_limiting 插件，基于变量提取的频率限制插件
+* waf 插件，web应用防火墙，根据规则，IP地址进行访问控制
+* kafka 插件，记录nginx access_log 到kafka
+
 ## 在源项目v0.7版本基础上，进行开发改进，去掉一些插件，修复一些问题，达到生产环境可用
 * 去除divide,kvstore,persist 等应用场景使用较少或功能重复插件
 * 添加了api 统计插件，可方便观察各个api 各时段数据及曲线图
