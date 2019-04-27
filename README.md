@@ -5,12 +5,13 @@
 
 * orange 源项目地址 https://github.com/sumory/orange
 ## 在源项目v0.7版本基础上，进行开发改进，去掉一些插件，修复一些问题
-* 去除divide,kvstore 等应用场景使用较少或功能重复插件
-* 强化persist 插件，添加了api 统计，曲线图
+* 去除divide,kvstore,persist 等应用场景使用较少或功能重复插件
+* 添加了api 统计插件，可方便观察各个api 各时段数据及曲线图
 * 除了cosocket 依赖需要luarocks 安装外，其余依赖以源码方式集成到项目中
 * dashboard 去除了相应的模块
 * 强化了 balancer 插件，去除了resty.dns.client 的依赖，增加轮询，随机权重，ip_hash 负载均衡算法
-* 强化kafka nginx 日志插件，当qps 很大时内存不会疯涨
+* 强化kafka nginx 日志插件，解决当qps 很大时内存疯涨问题
+* 强化header 插件，不但可以添加请求http头，还可以增加返回http头
 * 强化waf 插件，增加IP 黑白名单控制
 ## 安装
 * git clone 项目git地址
