@@ -35,6 +35,13 @@
             </select>
         </div>
 
+        <div class="col-sm-2">
+                <select class="form-control" name="rule-header-class">
+                    <option value="req" {@if h.category == "req"} selected {@/if}>请求头</option>
+                    <option value="res" {@if h.category == "res"} selected {@/if}>返回头</option>
+                </select>
+        </div>
+
         <div class="col-sm-1" style="margin-top:5px;float:right;margin-right: 50px;">
             <span class="input-group-btn">
                 <a class="btn btn-remove" style="padding:0 5px;">
