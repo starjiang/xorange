@@ -39,6 +39,62 @@
    * ./configure --prefix=/usr/local/openresty/luajit     --with-lua=/usr/local/openresty/luajit/     --lua-suffix=jit     --with-lua-include=/usr/local/openresty/luajit/include/luajit-2.1
 * 导入/usr/local/orange/install/orange.sql 到mysql 数据库
 * dashboard默认用户名/密码 admin/orange_admin
+## 修改配置文件
+
+Orange有**两个**配置文件，一个是`conf/orange.conf`，用于配置插件、存储方式和内部集成的默认Dashboard，另一个是`conf/nginx.conf`用于配置Nginx.
+orange.conf的配置如下，请按需修改:
+
+```javascript
+{
+    "plugins": [ //可用的插件列表，若不需要可从中删除，系统将自动加载这些插件的开放API并在7777端口暴露
+        "stat",
+        "monitor",
+        ".."
+    ],
+
+    "store": "mysql",//目前仅支持mysql存储
+    "store_mysql": { //MySQL配置
+        "timeout": 5000,
+        "connect_config": {//连接信息，请修改为需要的配置
+            "host": "127.0.0.1",
+            "port": 3306,
+            "database": "orange",
+            "user": "root",
+            "password": "",
+            "max_packet_size": 1048576
+        },
+        "pool_config": {
+            "max_idle_timeout": 10000,
+            "pool_size": 3
+        }
+    },
+
+    "dashboard": {//默认的Dashboard配置.
+        "auth": false, //设为true，则需用户名、密码才能登录Dashboard,默认的用户名和密码为admin/orange_admin
+        "session_secret": "y0ji4pdj61aaf3f11c2e65cd2263d3e7e5", //加密cookie用的盐，自行修改即可
+        "whitelist": [//不需要鉴权的uri，如登录页面，无需修改此值
+            "^/auth/login$",
+            "^/error/$"
+        ]
+    },
+
+    "api": {//API server配置
+        "auth_enable": true,//访问API时是否需要授权
+        "credentials": [//HTTP Basic Auth配置，仅在开启auth_enable时有效，自行添加或修改即可
+            {
+                "username":"api_username",
+                "password":"api_password"
+            }
+        ]
+    }
+}
+```
+
+conf/nginx.conf里是一些nginx相关配置，请自行检查并按照实际需要更改或添加配置，特别注意以下几个配置：
+
+- lua_package_path：需要根据本地环境配置适当修改
+- resolver：DNS解析
+
 ## 启动
 * /usr/local/orange/bin/orange start/restart/reload
 ## 管理地址
