@@ -2,8 +2,16 @@
 * 提供了一套默认的Dashboard用于动态管理各种功能和配置
 * 提供了API接口用于实现第三方服务(如个性化运维需求、第三方Dashboard等)
 * 可根据规范编写自定义插件扩展Orange功能
-
+* 高性能，打开常用的插件，对吞吐量有10% 的损失
 * orange 源项目地址 https://github.com/sumory/orange
+## 目前插件列表，以及相关功能介绍
+* header 插件，可以根据规则添加请求，或者返回http头
+* monitor 插件，可以根据规则，进行http 请求的实时监控
+* api_stat 插件，对所有api 进行统计，图表展示
+* rewrite 插件，实现 url rewrite
+* redirect 插件，实现 url redirect
+* dynamic_upstream 插件，根据规则实现请求分流，转发，负载均衡，AB Testing
+* balancer 插件，管理up_stream 
 ## 在源项目v0.7版本基础上，进行开发改进，去掉一些插件，修复一些问题，达到生产环境可用
 * 去除divide,kvstore,persist 等应用场景使用较少或功能重复插件
 * 添加了api 统计插件，可方便观察各个api 各时段数据及曲线图
