@@ -1,6 +1,6 @@
 /*
 SQLyog Ultimate v12.09 (64 bit)
-MySQL - 5.7.21 : Database - orange
+MySQL - 5.6.43 : Database - orange
 *********************************************************************
 */
 
@@ -12,7 +12,7 @@ MySQL - 5.7.21 : Database - orange
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`orange` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`orange` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */;
 
 USE `orange`;
 
@@ -43,6 +43,24 @@ CREATE TABLE `api_persist_log` (
 
 /*Data for the table `api_persist_log` */
 
+/*Table structure for table `api_stat` */
+
+DROP TABLE IF EXISTS `api_stat`;
+
+CREATE TABLE `api_stat` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `key` varchar(255) NOT NULL DEFAULT '',
+  `value` varchar(2000) NOT NULL DEFAULT '',
+  `type` varchar(11) DEFAULT '0',
+  `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_key` (`key`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+/*Data for the table `api_stat` */
+
+insert  into `api_stat`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{}','meta','2016-11-11 11:11:11');
+
 /*Table structure for table `balancer` */
 
 DROP TABLE IF EXISTS `balancer`;
@@ -59,7 +77,7 @@ CREATE TABLE `balancer` (
 
 /*Data for the table `balancer` */
 
-insert  into `balancer`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-25 00:10:08');
+insert  into `balancer`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-27 05:51:23');
 
 /*Table structure for table `basic_auth` */
 
@@ -73,11 +91,11 @@ CREATE TABLE `basic_auth` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 /*Data for the table `basic_auth` */
 
-insert  into `basic_auth`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{}','meta','2016-11-11 11:11:11');
+insert  into `basic_auth`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[\"f589e833-23fe-497d-81d9-b8f042d4414e\"]}','meta','2019-04-25 01:51:08'),(2,'f589e833-23fe-497d-81d9-b8f042d4414e','{\"time\":\"2019-04-25 09:51:08\",\"enable\":true,\"rules\":[\"8ce3b14a-d732-49b5-917d-3def174bc2cd\"],\"id\":\"f589e833-23fe-497d-81d9-b8f042d4414e\",\"judge\":{\"type\":0,\"conditions\":[{\"value\":\"172.28.2.137\",\"operator\":\"=\",\"type\":\"Host\"}]},\"name\":\"test basic auth\",\"handle\":{\"continue\":true,\"log\":false},\"type\":1}','selector','2019-04-25 01:52:26'),(3,'8ce3b14a-d732-49b5-917d-3def174bc2cd','{\"time\":\"2019-04-25 09:53:41\",\"enable\":true,\"id\":\"8ce3b14a-d732-49b5-917d-3def174bc2cd\",\"judge\":{\"conditions\":[{\"value\":\"^\\/test$\",\"operator\":\"match\",\"type\":\"URI\"}],\"type\":0},\"name\":\"rule for basic auth\",\"handle\":{\"log\":true,\"credentials\":[{\"username\":\"starjiang\",\"password\":\"msconfig\"}],\"code\":401}}','rule','2019-04-25 09:53:41');
 
 /*Table structure for table `cluster_node` */
 
@@ -94,9 +112,11 @@ CREATE TABLE `cluster_node` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`ip`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 /*Data for the table `cluster_node` */
+
+insert  into `cluster_node`(`id`,`name`,`ip`,`port`,`api_username`,`api_password`,`sync_status`,`op_time`) values (2,'172.28.2.137','172.28.2.137',7777,'api_username','api_password','{\"dynamic_upstream\":true,\"kafka\":true,\"rate_limiting\":true,\"balancer\":true,\"hmac_auth\":true,\"monitor\":true,\"basic_auth\":true,\"redirect\":true,\"signature_auth\":true,\"headers\":true,\"property_rate_limiting\":true,\"key_auth\":true,\"jwt_auth\":true,\"persist\":true,\"waf\":true,\"rewrite\":true}','2019-04-26 10:35:13'),(4,'192.168.1.123','192.168.1.123',7777,'api_username','api_password','','2019-04-26 14:10:21');
 
 /*Table structure for table `dashboard_user` */
 
@@ -129,11 +149,11 @@ CREATE TABLE `dynamic_upstream` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 
 /*Data for the table `dynamic_upstream` */
 
-insert  into `dynamic_upstream`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-25 00:09:29');
+insert  into `dynamic_upstream`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-27 05:51:04');
 
 /*Table structure for table `headers` */
 
@@ -151,7 +171,7 @@ CREATE TABLE `headers` (
 
 /*Data for the table `headers` */
 
-insert  into `headers`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-23 22:05:48');
+insert  into `headers`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-27 05:50:25');
 
 /*Table structure for table `hmac_auth` */
 
@@ -165,11 +185,11 @@ CREATE TABLE `hmac_auth` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 /*Data for the table `hmac_auth` */
 
-insert  into `hmac_auth`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{}','meta','2016-11-11 11:11:11');
+insert  into `hmac_auth`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[\"50103a90-06f4-4a62-b078-3c6ab837fa95\"]}','meta','2019-04-25 02:03:09'),(2,'50103a90-06f4-4a62-b078-3c6ab837fa95','{\"time\":\"2019-04-25 10:03:09\",\"enable\":true,\"id\":\"50103a90-06f4-4a62-b078-3c6ab837fa95\",\"judge\":[],\"name\":\"test for hmac auth\",\"handle\":{\"continue\":true,\"log\":false},\"type\":0}','selector','2019-04-25 10:03:09');
 
 /*Table structure for table `ip_list` */
 
@@ -196,11 +216,11 @@ CREATE TABLE `jwt_auth` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 /*Data for the table `jwt_auth` */
 
-insert  into `jwt_auth`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{}','meta','2016-11-11 11:11:11');
+insert  into `jwt_auth`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[\"b2d13524-305f-45b5-b8a4-6fde04e0605a\"]}','meta','2019-04-25 02:02:29'),(2,'b2d13524-305f-45b5-b8a4-6fde04e0605a','{\"time\":\"2019-04-25 10:02:29\",\"enable\":true,\"id\":\"b2d13524-305f-45b5-b8a4-6fde04e0605a\",\"judge\":[],\"name\":\"test for jwt auth\",\"handle\":{\"continue\":true,\"log\":false},\"type\":0}','selector','2019-04-25 10:02:29');
 
 /*Table structure for table `kafka` */
 
@@ -214,11 +234,11 @@ CREATE TABLE `kafka` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 /*Data for the table `kafka` */
 
-insert  into `kafka`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{}','meta','2016-11-11 11:11:11');
+insert  into `kafka`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[\"37f88252-2ca5-4a38-818f-9bedb59744a4\"]}','meta','2019-04-25 01:59:05'),(2,'37f88252-2ca5-4a38-818f-9bedb59744a4','{\"time\":\"2019-04-25 09:59:05\",\"enable\":true,\"rules\":[\"d1be67ae-895e-4de6-9648-9dd9ff9de1fd\"],\"id\":\"37f88252-2ca5-4a38-818f-9bedb59744a4\",\"judge\":[],\"name\":\"test for key auth\",\"handle\":{\"continue\":true,\"log\":false},\"type\":0}','selector','2019-04-25 02:00:26'),(3,'d1be67ae-895e-4de6-9648-9dd9ff9de1fd','{\"time\":\"2019-04-25 10:00:26\",\"enable\":true,\"id\":\"d1be67ae-895e-4de6-9648-9dd9ff9de1fd\",\"judge\":{\"conditions\":[{\"value\":\"^\\/test2$\",\"operator\":\"match\",\"type\":\"URI\"}],\"type\":0},\"name\":\"rule for key auth\",\"handle\":{\"log\":true,\"credentials\":[{\"target_value\":\"abcd\",\"key\":\"X-Auth\",\"type\":1}],\"code\":401}}','rule','2019-04-25 10:00:26');
 
 /*Table structure for table `key_auth` */
 
@@ -232,11 +252,11 @@ CREATE TABLE `key_auth` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 /*Data for the table `key_auth` */
 
-insert  into `key_auth`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{}','meta','2016-11-11 11:11:11');
+insert  into `key_auth`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[\"37f88252-2ca5-4a38-818f-9bedb59744a4\"]}','meta','2019-04-25 01:59:05'),(2,'37f88252-2ca5-4a38-818f-9bedb59744a4','{\"time\":\"2019-04-25 09:59:05\",\"enable\":true,\"rules\":[\"d1be67ae-895e-4de6-9648-9dd9ff9de1fd\"],\"id\":\"37f88252-2ca5-4a38-818f-9bedb59744a4\",\"judge\":[],\"name\":\"test for key auth\",\"handle\":{\"continue\":true,\"log\":false},\"type\":0}','selector','2019-04-25 02:00:26'),(3,'d1be67ae-895e-4de6-9648-9dd9ff9de1fd','{\"time\":\"2019-04-25 10:00:26\",\"enable\":true,\"id\":\"d1be67ae-895e-4de6-9648-9dd9ff9de1fd\",\"judge\":{\"conditions\":[{\"value\":\"^\\/test2$\",\"operator\":\"match\",\"type\":\"URI\"}],\"type\":0},\"name\":\"rule for key auth\",\"handle\":{\"log\":true,\"credentials\":[{\"target_value\":\"abcd\",\"key\":\"X-Auth\",\"type\":1}],\"code\":401}}','rule','2019-04-25 10:00:26');
 
 /*Table structure for table `meta` */
 
@@ -249,11 +269,11 @@ CREATE TABLE `meta` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8;
 
 /*Data for the table `meta` */
 
-insert  into `meta`(`id`,`key`,`value`,`op_time`) values (15,'redirect.enable','0','2019-04-11 22:50:50'),(18,'node.enable','1','2019-04-13 22:55:55'),(19,'headers.enable','0','2019-04-15 10:55:09'),(20,'monitor.enable','0','2019-04-15 10:55:17'),(21,'property_rate_limiting.enable','0','2019-04-15 10:55:24'),(29,'balancer.enable','1','2019-04-16 21:47:07'),(30,'waf.enable','1','2019-04-18 09:42:44'),(32,'persist.enable','1','2019-04-24 23:47:57'),(34,'dynamic_upstream.enable','1','2019-04-25 00:09:33'),(40,'kafka.enable','0','2019-04-25 18:51:19');
+insert  into `meta`(`id`,`key`,`value`,`op_time`) values (15,'redirect.enable','0','2019-04-11 22:50:50'),(18,'node.enable','1','2019-04-13 22:55:55'),(20,'monitor.enable','0','2019-04-15 10:55:17'),(21,'property_rate_limiting.enable','0','2019-04-15 10:55:24'),(35,'basic_auth.enable','0','2019-04-25 02:04:58'),(36,'key_auth.enable','0','2019-04-25 02:05:04'),(37,'jwt_auth.enable','0','2019-04-25 02:05:09'),(38,'hmac_auth.enable','0','2019-04-25 02:05:14'),(62,'kafka.enable','0','2019-04-27 05:51:57'),(63,'waf.enable','0','2019-04-27 05:52:04'),(64,'balancer.enable','0','2019-04-27 05:52:19'),(65,'dynamic_upstream.enable','0','2019-04-27 05:52:27'),(66,'api_stat.enable','0','2019-04-27 05:52:35'),(67,'headers.enable','0','2019-04-27 05:52:48');
 
 /*Table structure for table `monitor` */
 
@@ -291,24 +311,6 @@ CREATE TABLE `node` (
 
 insert  into `node`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{}','meta','2016-11-11 11:11:11');
 
-/*Table structure for table `persist` */
-
-DROP TABLE IF EXISTS `persist`;
-
-CREATE TABLE `persist` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `key` varchar(255) NOT NULL DEFAULT '',
-  `value` varchar(2000) NOT NULL DEFAULT '',
-  `type` varchar(11) DEFAULT '0',
-  `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
-
-/*Data for the table `persist` */
-
-insert  into `persist`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{}','meta','2016-11-11 11:11:11');
-
 /*Table structure for table `property_rate_limiting` */
 
 DROP TABLE IF EXISTS `property_rate_limiting`;
@@ -325,7 +327,7 @@ CREATE TABLE `property_rate_limiting` (
 
 /*Data for the table `property_rate_limiting` */
 
-insert  into `property_rate_limiting`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-25 00:10:21');
+insert  into `property_rate_limiting`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-27 05:51:36');
 
 /*Table structure for table `rate_limiting` */
 
@@ -339,11 +341,11 @@ CREATE TABLE `rate_limiting` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 /*Data for the table `rate_limiting` */
 
-insert  into `rate_limiting`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-25 00:10:15');
+insert  into `rate_limiting`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-16 18:32:29');
 
 /*Table structure for table `redirect` */
 
@@ -393,11 +395,11 @@ CREATE TABLE `signature_auth` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 /*Data for the table `signature_auth` */
 
-insert  into `signature_auth`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{}','meta','2016-11-11 11:11:11');
+insert  into `signature_auth`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[\"ae1f3865-fd82-464a-a408-dfda897acd2b\"]}','meta','2019-04-25 02:04:19'),(2,'ae1f3865-fd82-464a-a408-dfda897acd2b','{\"time\":\"2019-04-25 10:04:19\",\"enable\":true,\"id\":\"ae1f3865-fd82-464a-a408-dfda897acd2b\",\"judge\":[],\"name\":\"test for sig auth\",\"handle\":{\"continue\":true,\"log\":false},\"type\":0}','selector','2019-04-25 10:04:19');
 
 /*Table structure for table `waf` */
 
@@ -411,11 +413,11 @@ CREATE TABLE `waf` (
   `op_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 /*Data for the table `waf` */
 
-insert  into `waf`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-25 00:11:23');
+insert  into `waf`(`id`,`key`,`value`,`type`,`op_time`) values (1,'1','{\"selectors\":[]}','meta','2019-04-27 05:51:50');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
