@@ -64,7 +64,8 @@ local function assert_condition(real, operator, expected)
         local value = {}
         local idx = 1
         --expected like: 50|1,2,3
-        for i in re_gmatch(expected, "(\\d+)", "jsio") do
+        local matchs = re_gmatch(expected, "(\\d+)", "jsio")
+        for i in matchs do
             if idx == 1 then
                 mod_num = tonumber(i[1])
             else
