@@ -7,7 +7,6 @@ local orange_db = require("orange.store.orange_db")
 local utils = require("orange.utils.utils")
 local stringy = require("orange.utils.stringy")
 local dao = require("orange.store.dao")
-local consul_kv = require("orange.store.consul_kv")
 local orange = require("orange.orange")
 
 -- build common apis
